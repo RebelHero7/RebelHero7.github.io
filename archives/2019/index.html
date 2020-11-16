@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="归档: 2020, rebelHero7">
+    <meta name="keywords" content="归档: 2019, rebelHero7">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>归档: 2020 | rebelHero7</title>
+    <title>归档: 2019 | rebelHero7</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -398,7 +398,7 @@
             
             
             <div class="cd-timeline-img year" data-aos="zoom-in-up">
-                <a href="/archives/2020">2020</a>
+                <a href="/archives/2019">2019</a>
             </div>
             
 
@@ -406,43 +406,44 @@
             
             
             <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/archives/2020/07">07</a>
+                <a href="/archives/2019/07">07</a>
             </div>
             
 
             
             <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>23</span>
+                <span>01</span>
             </div>
             <article class="cd-timeline-content" data-aos="fade-up">
                 <div class="article col s12 m6">
                     <div class="card">
-                        <a href="/2020/07/23/spring-jie-jue-xun-huan-yi-lai-yuan-ma-jie-xi/">
+                        <a href="/2019/07/01/java-xian-cheng-chi-yuan-ma-fen-xi/">
                             <div class="card-image">
                                 
                                 
-                                <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="Spring解决循环依赖源码解析">
+                                <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java线程池源码分析">
                                 
-                                <span class="card-title">Spring解决循环依赖源码解析</span>
+                                <span class="card-title">Java线程池源码分析</span>
                             </div>
                         </a>
                         <div class="card-content article-content">
                             <div class="summary block-with-text">
                                 
-                                    写在前面的话循环依赖是啥我就不说了，具体就讲怎么解决的，我觉得可以一句话概括，在Bean还没初始化前，使用早期引用！推荐先看一下我的上篇文章Spring IOC 容器源码简单分析了解如何获取bean的。
-开始首先进入getBean 进入do
+                                    基本概念我这里先告知一些应该知道的基本概念：
+
+我们向线程池提交的都是一个个任务，这些任务都是实现了Runnable 接口的，Runnable的run方法是没有返回值的。而线程池是可以获取线程执行的结果的，返回的是Future。因此，线程池
                                 
                             </div>
                             <div class="publish-info">
                                 <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2020-07-23
+                                    <i class="far fa-clock fa-fw icon-date"></i>2019-07-01
                                 </span>
                                 <span class="publish-author">
                                     
                                     <i class="fas fa-bookmark fa-fw icon-category"></i>
                                     
-                                    <a href="/categories/Spring/" class="post-category">
-                                    Spring
+                                    <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                    Java并发
                                     </a>
                                     
                                     
@@ -453,9 +454,73 @@
                         
                         <div class="card-action article-tags">
                             
-                            <a href="/tags/Spring/"><span class="chip bg-color">Spring</span></a>
+                            <a href="/tags/Java%E5%B9%B6%E5%8F%91/"><span class="chip bg-color">Java并发</span></a>
                             
-                            <a href="/tags/Spring%E6%BA%90%E7%A0%81/"><span class="chip bg-color">Spring源码</span></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </article>
+        </div>
+        
+        <div class="cd-timeline-block">
+
+            
+            
+
+            
+            
+            
+            <div class="cd-timeline-img month" data-aos="zoom-in-up">
+                <a href="/archives/2019/06">06</a>
+            </div>
+            
+
+            
+            <div class="cd-timeline-img day" data-aos="zoom-in-up">
+                <span>11</span>
+            </div>
+            <article class="cd-timeline-content" data-aos="fade-up">
+                <div class="article col s12 m6">
+                    <div class="card">
+                        <a href="/2019/06/11/hashmap-yuan-ma-fen-xi-ji-yu-1.8-ban-ben/">
+                            <div class="card-image">
+                                
+                                
+                                <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="HashMap源码分析（基于1.8版本）">
+                                
+                                <span class="card-title">HashMap源码分析（基于1.8版本）</span>
+                            </div>
+                        </a>
+                        <div class="card-content article-content">
+                            <div class="summary block-with-text">
+                                
+                                    鉴于我本地安装的版本是1.8的，因此，分析1.8版本的是HashMap。最后会分析1.7和1.8的有什么区别。
+首先，HashMap使用链地址法来解决hash冲突的问题，HashMap1.8使用的是数组+链表/红黑树。
+注：虽然是源码解析，
+                                
+                            </div>
+                            <div class="publish-info">
+                                <span class="publish-date">
+                                    <i class="far fa-clock fa-fw icon-date"></i>2019-06-11
+                                </span>
+                                <span class="publish-author">
+                                    
+                                    <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                    
+                                    <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
+                                    </a>
+                                    
+                                    
+                                </span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="card-action article-tags">
+                            
+                            <a href="/tags/Java%E9%9B%86%E5%90%88/"><span class="chip bg-color">Java集合</span></a>
                             
                         </div>
                         
@@ -474,36 +539,39 @@
 
             
             <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>22</span>
+                <span>11</span>
             </div>
             <article class="cd-timeline-content" data-aos="fade-up">
                 <div class="article col s12 m6">
                     <div class="card">
-                        <a href="/2020/07/22/spring-ioc-rong-qi-yuan-ma-jian-dan-fen-xi/">
+                        <a href="/2019/06/11/dui-collections.synchronizedlist-de-bu-fen-si-kao/">
                             <div class="card-image">
                                 
                                 
-                                <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="Spring IOC 容器源码简单分析">
+                                <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="对Collections.synchronizedList的部分思考">
                                 
-                                <span class="card-title">Spring IOC 容器源码简单分析</span>
+                                <span class="card-title">对Collections.synchronizedList的部分思考</span>
                             </div>
                         </a>
                         <div class="card-content article-content">
                             <div class="summary block-with-text">
                                 
-                                    写在前面的话：首先，这块代码无疑是难以理解的，之前好几次准备认真看看到一半被绕来绕去绕晕了，然后就放弃了。最近还是决定拾起来看了，但不同以往，这次我是备而来的！看了《Spring 揭密》这本书，这本书比较老了，但是Spring 核心这么多年
+                                    首先来看两个例子。
+线程不安全的：
+class ListHelper &lt;E&gt; &#123;  
+    public List&lt;E&gt; list = Collections.synchronizedList(new A
                                 
                             </div>
                             <div class="publish-info">
                                 <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2020-07-22
+                                    <i class="far fa-clock fa-fw icon-date"></i>2019-06-11
                                 </span>
                                 <span class="publish-author">
                                     
                                     <i class="fas fa-bookmark fa-fw icon-category"></i>
                                     
-                                    <a href="/categories/Spring/" class="post-category">
-                                    Spring
+                                    <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
                                     </a>
                                     
                                     
@@ -514,9 +582,140 @@
                         
                         <div class="card-action article-tags">
                             
-                            <a href="/tags/Spring/"><span class="chip bg-color">Spring</span></a>
+                            <a href="/tags/Java%E9%9B%86%E5%90%88/"><span class="chip bg-color">Java集合</span></a>
                             
-                            <a href="/tags/Spring%E6%BA%90%E7%A0%81/"><span class="chip bg-color">Spring源码</span></a>
+                            <a href="/tags/Java%E5%B9%B6%E5%8F%91/"><span class="chip bg-color">Java并发</span></a>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </article>
+        </div>
+        
+        <div class="cd-timeline-block">
+
+            
+            
+
+            
+            
+            
+            <div class="cd-timeline-img month" data-aos="zoom-in-up">
+                <a href="/archives/2019/05">05</a>
+            </div>
+            
+
+            
+            <div class="cd-timeline-img day" data-aos="zoom-in-up">
+                <span>10</span>
+            </div>
+            <article class="cd-timeline-content" data-aos="fade-up">
+                <div class="article col s12 m6">
+                    <div class="card">
+                        <a href="/2019/05/10/concurrenthashmap-yuan-ma-jie-xi-ji-yu-1.8-ban-ben/">
+                            <div class="card-image">
+                                
+                                
+                                <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="ConcurrentHashMap源码解析（基于1.8版本）">
+                                
+                                <span class="card-title">ConcurrentHashMap源码解析（基于1.8版本）</span>
+                            </div>
+                        </a>
+                        <div class="card-content article-content">
+                            <div class="summary block-with-text">
+                                
+                                    ConcurrentHashMap（以下简称chm）是concurrent包下的用于多线程并发的一个类，由Doug Lea大神编写。它比HashMap更复杂（其实HashMap也没有很复杂 ），它是线程安全的同时效率还比HashTable高
+                                
+                            </div>
+                            <div class="publish-info">
+                                <span class="publish-date">
+                                    <i class="far fa-clock fa-fw icon-date"></i>2019-05-10
+                                </span>
+                                <span class="publish-author">
+                                    
+                                    <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                    
+                                    <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
+                                    </a>
+                                    
+                                    
+                                </span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="card-action article-tags">
+                            
+                            <a href="/tags/Java%E9%9B%86%E5%90%88/"><span class="chip bg-color">Java集合</span></a>
+                            
+                            <a href="/tags/Java%E5%B9%B6%E5%8F%91/"><span class="chip bg-color">Java并发</span></a>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </article>
+        </div>
+        
+        <div class="cd-timeline-block">
+
+            
+            
+
+            
+            
+            
+            <div class="cd-timeline-img month" data-aos="zoom-in-up">
+                <a href="/archives/2019/04">04</a>
+            </div>
+            
+
+            
+            <div class="cd-timeline-img day" data-aos="zoom-in-up">
+                <span>18</span>
+            </div>
+            <article class="cd-timeline-content" data-aos="fade-up">
+                <div class="article col s12 m6">
+                    <div class="card">
+                        <a href="/2019/04/18/arraylist-yuan-ma-jie-xi/">
+                            <div class="card-image">
+                                
+                                
+                                <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="ArrayList源码解析">
+                                
+                                <span class="card-title">ArrayList源码解析</span>
+                            </div>
+                        </a>
+                        <div class="card-content article-content">
+                            <div class="summary block-with-text">
+                                
+                                    一直以来都是看别人的博客，所以从来都是输入，没有输出。所以决心自己搞一个博客输出一下学习的东西。
+既然决定要写，就先从集合类开始。集合类最常用到的肯定是list，map，和set等。因此决定先从list的ArrayList写起。ArrayL
+                                
+                            </div>
+                            <div class="publish-info">
+                                <span class="publish-date">
+                                    <i class="far fa-clock fa-fw icon-date"></i>2019-04-18
+                                </span>
+                                <span class="publish-author">
+                                    
+                                    <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                    
+                                    <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
+                                    </a>
+                                    
+                                    
+                                </span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="card-action article-tags">
+                            
+                            <a href="/tags/Java%E9%9B%86%E5%90%88/"><span class="chip bg-color">Java集合</span></a>
                             
                         </div>
                         

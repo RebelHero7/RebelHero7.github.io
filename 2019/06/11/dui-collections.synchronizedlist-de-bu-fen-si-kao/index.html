@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Hello World, rebelHero7">
+    <meta name="keywords" content="对Collections.synchronizedList的部分思考, rebelHero7">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Hello World | rebelHero7</title>
+    <title>对Collections.synchronizedList的部分思考 | rebelHero7</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -264,12 +264,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Hello World</h1>
+                    <h1 class="description center-align post-title">对Collections.synchronizedList的部分思考</h1>
                 </div>
             </div>
         </div>
@@ -384,12 +384,29 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Java%E9%9B%86%E5%90%88/">
+                                <span class="chip bg-color">Java集合</span>
+                            </a>
+                        
+                            <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                                <span class="chip bg-color">Java并发</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                Java集合
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -398,7 +415,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-11-04
+                    2019-06-11
                 </div>
                 
 
@@ -407,14 +424,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    75
+                    1k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    1 分
+                    4 分
                 </div>
                 
 
@@ -424,15 +441,90 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+                <p>首先来看两个例子。</p>
+<p>线程不安全的：</p>
+<pre><code class="highlight java"><span class="class"><span class="keyword">class</span> <span class="title">ListHelper</span> &lt;<span class="title">E</span>&gt; </span>&#123;  
+    <span class="keyword">public</span> List&lt;E&gt; list = Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;E&gt;());  
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;  
+        <span class="keyword">boolean</span> absent = !list.contains(x);  
+        <span class="keyword">if</span> (absent)  
+            list.add(x);  
+        <span class="keyword">return</span> absent;  
+    &#125;  
+&#125;</code></pre>
+
+<p>线程安全的：</p>
+<pre><code class="highlight java"><span class="class"><span class="keyword">class</span> <span class="title">ListHelper</span> &lt;<span class="title">E</span>&gt; </span>&#123;  
+    <span class="keyword">public</span> List&lt;E&gt; list = Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;E&gt;());  
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;  
+        <span class="keyword">synchronized</span> (list) &#123;  
+            <span class="keyword">boolean</span> absent = !list.contains(x);  
+            <span class="keyword">if</span> (absent)  
+                list.add(x);  
+            <span class="keyword">return</span> absent;  
+        &#125;  
+    &#125;  
+&#125;</code></pre>
+<p>一开始很诧异为啥上面的线程不安全，下面的线程安全。<br>不过想通了就很好解释了，下面是我的思考：</p>
+<p>这个方法的作用是，如果没有则添加，<strong>所以就必须保证list 这个变量的正确性。</strong></p>
+<p>假设有一个线程A，一个线程B，都有同一个ListHelper 对象，锁住了putIfAbsent方法，乍一看是没什么问题的，但是仔细想想。sychronized获取到的只是这个ListHelper 对象的监视锁，假设线程A获取到了这个锁，那么线程B不能进入putIfAbsent方法是很正常的，可以理解的，但是假设这类中有一个其他的方法对list进行修改，且该方法并未被sychronized锁住，线程B是可以进入这个方法的，那么很明显，list没有可见性的，从而就会导致不正确性。那么这个sychronized是没起到保证list正确性的，因此是线程不安全的。</p>
+<p><strong>也可以理解成因为A锁住的是外部锁，也就是调用putIfAbsent方法的对象，其实对list是没有锁住的，因此list还是可以修改。即使list是synchronizedList，是线程安全的，但内外部锁不一致还是会导致线程不安全。</strong></p>
+<p>还有一个情况是，假设该list并没有被Collections.synchronizedList修饰的话，锁住的也只是list对象，也就是说，还是和上面差不多，因为ArrayList是线程不安全的，里面的方法并没有被sychronized修饰，这样的话就会导致还是可以在其他方法中修改该list的。</p>
+<p><strong><em>当然，这两种情况不是同一种原因。</em></strong></p>
+<p>但是使用了Collections.synchronizedList就不一样了。下面看一下源码：</p>
+<pre><code class="highlight java"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">synchronizedList</span><span class="params">(List&lt;T&gt; list)</span> </span>&#123;
+       <span class="keyword">return</span> (list <span class="keyword">instanceof</span> RandomAccess ?
+               <span class="keyword">new</span> SynchronizedRandomAccessList&lt;&gt;(list) :
+               <span class="keyword">new</span> SynchronizedList&lt;&gt;(list));
+   &#125;</code></pre>
+<p>可以看到，实现了RandomAccess 接口的会返回一个SynchronizedRandomAccessList类，否则返回SynchronizedList类。由于ArrayList是实现了这个接口，因此看一下SynchronizedRandomAccessList这个类：</p>
+<pre><code class="highlight java"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedRandomAccessList</span>&lt;<span class="title">E</span>&gt;</span>
+<span class="class">       <span class="keyword">extends</span> <span class="title">SynchronizedList</span>&lt;<span class="title">E</span>&gt;</span>
+<span class="class">       <span class="keyword">implements</span> <span class="title">RandomAccess</span> </span>&#123;
+
+       SynchronizedRandomAccessList(List&lt;E&gt; list) &#123;
+           <span class="keyword">super</span>(list);
+       &#125;
+
+       SynchronizedRandomAccessList(List&lt;E&gt; list, Object mutex) &#123;
+           <span class="keyword">super</span>(list, mutex);
+       &#125;
+
+       <span class="function"><span class="keyword">public</span> List&lt;E&gt; <span class="title">subList</span><span class="params">(<span class="keyword">int</span> fromIndex, <span class="keyword">int</span> toIndex)</span> </span>&#123;
+           <span class="keyword">synchronized</span> (mutex) &#123;
+               <span class="keyword">return</span> <span class="keyword">new</span> SynchronizedRandomAccessList&lt;&gt;(
+                   list.subList(fromIndex, toIndex), mutex);
+           &#125;
+       &#125;
+
+       <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1530674583602358482L</span>;
+
+       
+       <span class="function"><span class="keyword">private</span> Object <span class="title">writeReplace</span><span class="params">()</span> </span>&#123;
+           <span class="keyword">return</span> <span class="keyword">new</span> SynchronizedList&lt;&gt;(list);
+       &#125;
+   &#125;</code></pre>
+<p>会发现这个类继承自SynchronizedList，然后subList方法中使用mutex监视器锁（其实每个方法都会锁住mutex，只是这里没贴出来），但是这个mutex并没有在其中定义，这时来看看构造方法：</p>
+<pre><code class="highlight java">SynchronizedRandomAccessList(List&lt;E&gt; list, Object mutex) &#123;
+          <span class="keyword">super</span>(list, mutex);
+      &#125;</code></pre>
+<p>这里有个mutex变量，点进去看，会发现该变量定义在SynchronizedCollection中，那么再来看一下SynchronizedCollection的部分代码：</p>
+<pre><code class="highlight java"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedCollection</span>&lt;<span class="title">E</span>&gt; <span class="keyword">implements</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt;, <span class="title">Serializable</span> </span>&#123;
+       <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">3053995032091335093L</span>;
+
+       <span class="keyword">final</span> Collection&lt;E&gt; c;  <span class="comment">// Backing Collection</span>
+       <span class="keyword">final</span> Object mutex;     <span class="comment">// Object on which to synchronize</span>
+
+       SynchronizedCollection(Collection&lt;E&gt; c) &#123;
+           <span class="keyword">this</span>.c = Objects.requireNonNull(c);
+           mutex = <span class="keyword">this</span>;
+       &#125;
+   &#125;</code></pre>
+<p>可以看到这里定义了变量mutex，同时这个mutex在构造方法中赋值为this。<strong>因此，在线程安全的ListHelper 中锁住的list，与内部锁一致，其他的方法即使没有锁修饰，但是想改动list也会发现它已经被锁住，而无法修改，因此是线程安全的。</strong></p>
+<p>通过上面的源码，就可以知道线程安全的ListHelper 安全在哪了，使用之前对线程不安全的ListHelper 分析来线程安全的ListHelper ，会发现之前线程不安全的原因在这个类中不存在了。</p>
+<p>以上，就是我对Collections.synchronizedList的部分思考，如有错误，欢迎指教。</p>
 
             </div>
             <hr/>
@@ -458,7 +550,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://example.com/2020/11/04/hello-world/">http://example.com/2020/11/04/hello-world/</a>
+                    <a href="http://example.com/2019/06/11/dui-collections.synchronizedlist-de-bu-fen-si-kao/">http://example.com/2019/06/11/dui-collections.synchronizedlist-de-bu-fen-si-kao/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -495,7 +587,15 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/Java%E9%9B%86%E5%90%88/">
+                                    <span class="chip bg-color">Java集合</span>
+                                </a>
+                            
+                                <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                                    <span class="chip bg-color">Java并发</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -535,39 +635,51 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/11/04/hello-world/">
+                <a href="/2019/06/11/hashmap-yuan-ma-fen-xi-ji-yu-1.8-ban-ben/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="Hello World">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="HashMap源码分析（基于1.8版本）">
                         
-                        <span class="card-title">Hello World</span>
+                        <span class="card-title">HashMap源码分析（基于1.8版本）</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hex
+                            鉴于我本地安装的版本是1.8的，因此，分析1.8版本的是HashMap。最后会分析1.7和1.8的有什么区别。
+首先，HashMap使用链地址法来解决hash冲突的问题，HashMap1.8使用的是数组+链表/红黑树。
+注：虽然是源码解析，
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-11-04
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-06-11
+                        </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            rebelHero7
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
+                                </a>
+                            
                             
                         </span>
                     </div>
                 </div>
-
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Java%E9%9B%86%E5%90%88/">
+                        <span class="chip bg-color">Java集合</span>
+                    </a>
+                    
+                </div>
                 
             </div>
         </div>
@@ -575,37 +687,52 @@
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="far fa-dot-circle"></i>
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2020/11/04/hello-world/">
+                <a href="/2019/05/10/concurrenthashmap-yuan-ma-jie-xi-ji-yu-1.8-ban-ben/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="Hello World">
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="ConcurrentHashMap源码解析（基于1.8版本）">
                         
-                        <span class="card-title">Hello World</span>
+                        <span class="card-title">ConcurrentHashMap源码解析（基于1.8版本）</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hex
+                            ConcurrentHashMap（以下简称chm）是concurrent包下的用于多线程并发的一个类，由Doug Lea大神编写。它比HashMap更复杂（其实HashMap也没有很复杂 ），它是线程安全的同时效率还比HashTable高
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-11-04
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-05-10
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            rebelHero7
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
+                                    Java集合
+                                </a>
+                            
                             
                         </span>
                     </div>
                 </div>
-
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Java%E9%9B%86%E5%90%88/">
+                        <span class="chip bg-color">Java集合</span>
+                    </a>
+                    
+                    <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                        <span class="chip bg-color">Java并发</span>
+                    </a>
+                    
+                </div>
                 
             </div>
         </div>
@@ -755,7 +882,7 @@ code[class*="language-"], pre[class*="language-"] { white-space: pre !important;
 <!--             <br> -->
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">75</span>&nbsp;字
+                class="white-color">28.1k</span>&nbsp;字
             
             
             

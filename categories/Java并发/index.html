@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="标签, rebelHero7">
+    <meta name="keywords" content="分类: Java并发, rebelHero7">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>标签 | rebelHero7</title>
+    <title>分类: Java并发 | rebelHero7</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -304,91 +304,116 @@
 
     
 
-<div id="tags" class="container chip-container">
+<div id="category-cloud" class="container chip-container">
     <div class="card">
         <div class="card-content">
             <div class="tag-title center-align">
-                <i class="fas fa-tags"></i>&nbsp;&nbsp;文章标签
+                <i class="fas fa-bookmark"></i>&nbsp;&nbsp;文章分类
             </div>
             <div class="tag-chips">
                 
                 
-                <a href="/tags/Java%E9%9B%86%E5%90%88/" title="Java集合: 4">
+                
+                <a href="/categories/Java%E9%9B%86%E5%90%88/" title="Java集合: 4">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            data-tagname="Java集合" style="background-color: #F9EBEA;">Java集合
+                            style="background-color: #F9EBEA;">Java集合
                         <span class="tag-length">4</span>
                     </span>
                 </a>
                 
                 
-                <a href="/tags/%E9%94%81/" title="锁: 1">
+                <a href="/categories/Spring/" title="Spring: 2">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            data-tagname="锁" style="background-color: #F5EEF8;">锁
+                            style="background-color: #F5EEF8;">Spring
+                        <span class="tag-length">2</span>
+                    </span>
+                </a>
+                
+                
+                <a href="/categories/Java%E5%B9%B6%E5%8F%91/" title="Java并发: 1">
+                    <span class="chip center-align waves-effect waves-light
+                             chip-active "
+                            style="background-color: #D5F5E3;">Java并发
                         <span class="tag-length">1</span>
                     </span>
                 </a>
                 
                 
-                <a href="/tags/Java%E5%B9%B6%E5%8F%91/" title="Java并发: 4">
+                <a href="/categories/%E9%94%81/" title="锁: 1">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            data-tagname="Java并发" style="background-color: #D5F5E3;">Java并发
-                        <span class="tag-length">4</span>
+                            style="background-color: #E8F8F5;">锁
+                        <span class="tag-length">1</span>
                     </span>
                 </a>
                 
-                
-                <a href="/tags/Spring/" title="Spring: 2">
-                    <span class="chip center-align waves-effect waves-light
-                             chip-default "
-                            data-tagname="Spring" style="background-color: #E8F8F5;">Spring
-                        <span class="tag-length">2</span>
-                    </span>
-                </a>
-                
-                
-                <a href="/tags/Spring%E6%BA%90%E7%A0%81/" title="Spring源码: 2">
-                    <span class="chip center-align waves-effect waves-light
-                             chip-default "
-                            data-tagname="Spring源码" style="background-color: #FEF9E7;">Spring源码
-                        <span class="tag-length">2</span>
-                    </span>
-                </a>
                 
             </div>
         </div>
     </div>
 </div>
 
-    
-    <link rel="stylesheet" type="text/css" href="/libs/jqcloud/jqcloud.css">
-<style type="text/css">
-    #tag-wordcloud {
-        width: 100%;
-        height: 300px;
-    }
-</style>
-
-<div class="container" data-aos="fade-up">
-    <div class="card">
-        <div id="tag-wordcloud" class="card-content"></div>
-    </div>
-</div>
-
-<script type="text/javascript" src="/libs/jqcloud/jqcloud-1.0.4.min.js"></script>
-<script type="text/javascript">
-    
-
-    $('#tag-wordcloud').jQCloud([{"text":"Java集合","weight":4,"link":"/tags/Java集合/"},{"text":"锁","weight":1,"link":"/tags/锁/"},{"text":"Java并发","weight":4,"link":"/tags/Java并发/"},{"text":"Spring","weight":2,"link":"/tags/Spring/"},{"text":"Spring源码","weight":2,"link":"/tags/Spring源码/"}], {
-        autoResize: true
-    });
-</script>
 
     
 
+    <article id="articles" class="container articles">
+        <div class="row tags-posts">
+            
+            <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2019/07/01/java-xian-cheng-chi-yuan-ma-fen-xi/">
+                        <div class="card-image tag-image">
+                            
+                            
+                            <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java线程池源码分析">
+                            
+                            <span class="card-title">Java线程池源码分析</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                基本概念我这里先告知一些应该知道的基本概念：
+
+我们向线程池提交的都是一个个任务，这些任务都是实现了Runnable 接口的，Runnable的run方法是没有返回值的。而线程池是可以获取线程执行的结果的，返回的是Future。因此，线程池
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-07-01
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                    Java并发
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                            <span class="chip bg-color">Java并发</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </article>
 </main>
+
+
 
 
     <footer class="page-footer bg-color">

@@ -1,0 +1,1911 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Spring IOC 容器源码简单分析, rebelHero7">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Spring IOC 容器源码简单分析 | rebelHero7</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">rebelHero7</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">rebelHero7</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/RebelHero7" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/RebelHero7" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Spring IOC 容器源码简单分析</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        height: calc(100vh - 250px);
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Spring/">
+                                <span class="chip bg-color">Spring</span>
+                            </a>
+                        
+                            <a href="/tags/Spring%E6%BA%90%E7%A0%81/">
+                                <span class="chip bg-color">Spring源码</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Spring/" class="post-category">
+                                Spring
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-07-22
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    5.4k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    27 分
+                </div>
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="写在前面的话："><a href="#写在前面的话：" class="headerlink" title="写在前面的话："></a>写在前面的话：</h1><p>首先，这块代码无疑是难以理解的，之前好几次准备认真看看到一半被绕来绕去绕晕了，然后就放弃了。最近还是决定拾起来看了，但不同以往，这次我是备而来的！看了《Spring 揭密》这本书，这本书比较老了，但是Spring 核心这么多年也没变化太多，看的是一个这本书给的一个思路。同时特地跟着<a target="_blank" rel="noopener" href="https://github.com/code4craft/tiny-spring">tiny-spring</a>这个项目走了遍它的逻辑，有了这个基础去理解Spring Ioc这块的源码起码有点底子，非常感谢这个项目的作者。</p>
+<p>其次，我觉得Spring代码很繁杂，很多方法没必要刨根问底，不该本末倒置太纠结细节，<strong>而应去了解关键方法，串成一个链，着重的应该是它的思路，及其运行过程</strong>，因此很多方法会略过介绍的。而且标题也写了是简单分析，因此不会很详细的！</p>
+<h1 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h1><p>简单介绍一下需要了解的知识吧：</p>
+<p>BeanFactory：基础类型IoC容器，一个生产Bean的工厂。没有特殊指定时，<strong>默认采用延迟初始化（lazy-load）</strong>。当需要容器中的某个Bean时，才对该Bean进行初始化以及依赖注入操作。</p>
+<p>ApplicationContext：在BeanFactory的基础上构建，拥有BeanFactory的所有支持，以及事件发布、国际化信息支持等，<strong>默认容器启动时全部初始化并绑定完成</strong>。</p>
+<p>BeanDefinition：我们熟知的Bean，在Spring中肯定不是简单的set、get，保存的格式是BeanDefinition，会注册到Spring的BeanDefinitionRegistry。BeanDefinition包含了Bean 信息，如该 Bean 类名、是否是单例的、依赖了哪些 Bean 等。</p>
+<p>BeanFactoryPostProcessor：允许我们在容器实例化相应对象之前，对注册到容器的BeanDefinition所保存的信息做相应的修改。这就相当于在容器实现的第一阶段最后加入一道工序，让我们对最终的BeanDefinition做一些额外的操作，比如修改其中bean定义的某些属性，为bean定义增加其他信息等。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>从这个地方开启源码之路！</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;
+    ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;classpath:application.xml&quot;</span>);
+&#125;</code></pre>
+<p>点进ClassPathXmlApplicationContext构造方法。</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="title">ClassPathXmlApplicationContext</span><span class="params">(String... configLocations)</span> <span class="keyword">throws</span> BeansException </span>&#123;
+	<span class="keyword">this</span>(configLocations, <span class="keyword">true</span>, <span class="keyword">null</span>);
+&#125;
+...
+<span class="function"><span class="keyword">public</span> <span class="title">ClassPathXmlApplicationContext</span><span class="params">(</span></span>
+<span class="function"><span class="params">		String[] configLocations, <span class="keyword">boolean</span> refresh, <span class="meta">@Nullable</span> ApplicationContext parent)</span></span>
+<span class="function">		<span class="keyword">throws</span> BeansException </span>&#123;
+
+	<span class="keyword">super</span>(parent);
+	<span class="comment">// 将所给路径的文件，处理成配置文件数组。</span>
+	setConfigLocations(configLocations);
+	<span class="keyword">if</span> (refresh) &#123;
+		refresh();
+	&#125;
+&#125;</code></pre>
+<p>那核心必须是refresh()这个方法啊，点进去看。</p>
+<h2 id="refresh"><a href="#refresh" class="headerlink" title="refresh"></a>refresh</h2><pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;
+	<span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;
+		<span class="comment">// 准备刷新，设置启动日期和active标志以及文件中的占位符。</span>
+		prepareRefresh();
+
+		<span class="comment">// ！！重要，这个方法一路走下去就会解析xml文件为BeanDefinition, 同时注册进框架。</span>
+		<span class="comment">// 当然，这个时候还没有初始化！！！！，只是解析好，并注册进了。</span>
+		ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+		<span class="comment">// 配置工厂，如类加载器和BeanPostProcessor。</span>
+		prepareBeanFactory(beanFactory);
+
+		<span class="keyword">try</span> &#123;
+			<span class="comment">// 在所有BeanDefinition已经加载完毕，但是还没有实例化bean。</span>
+			<span class="comment">// 允许在某些ApplicationContext实现中注册特殊的BeanPostProcessors。 </span>
+			postProcessBeanFactory(beanFactory);
+
+			<span class="comment">// Invoke factory processors registered as beans in the context.</span>
+			invokeBeanFactoryPostProcessors(beanFactory);
+
+			<span class="comment">// Register bean processors that intercept bean creation.</span>
+			registerBeanPostProcessors(beanFactory);
+
+			<span class="comment">// Initialize message source for this context.</span>
+			initMessageSource();
+
+			<span class="comment">// Initialize event multicaster for this context.</span>
+			initApplicationEventMulticaster();
+
+			<span class="comment">// Initialize other special beans in specific context subclasses.</span>
+			onRefresh();
+
+			<span class="comment">// Check for listener beans and register them.</span>
+			registerListeners();
+
+			<span class="comment">// 实例化所有剩余的（非延迟初始化）单例！！！也是重点！！</span>
+			finishBeanFactoryInitialization(beanFactory);
+
+			<span class="comment">// Last step: publish corresponding event.</span>
+			finishRefresh();
+		&#125;
+
+		<span class="keyword">catch</span> (BeansException ex) &#123;
+			<span class="keyword">if</span> (logger.isWarnEnabled()) &#123;
+				logger.warn(<span class="string">&quot;Exception encountered during context initialization - &quot;</span> +
+						<span class="string">&quot;cancelling refresh attempt: &quot;</span> + ex);
+			&#125;
+
+			<span class="comment">// Destroy already created singletons to avoid dangling resources.</span>
+			destroyBeans();
+
+			<span class="comment">// Reset &#x27;active&#x27; flag.</span>
+			cancelRefresh(ex);
+
+			<span class="comment">// Propagate exception to caller.</span>
+			<span class="keyword">throw</span> ex;
+		&#125;
+
+		<span class="keyword">finally</span> &#123;
+			<span class="comment">// Reset common introspection caches in Spring&#x27;s core, since we</span>
+			<span class="comment">// might not ever need metadata for singleton beans anymore...</span>
+			resetCommonCaches();
+		&#125;
+	&#125;
+&#125;</code></pre>
+<h2 id="将xml转换为BeanDefinition"><a href="#将xml转换为BeanDefinition" class="headerlink" title="将xml转换为BeanDefinition"></a>将xml转换为BeanDefinition</h2><p>这个方法是很流程的东西，最核心的就是obtainFreshBeanFactory()方法，下面看一下该方法：</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> ConfigurableListableBeanFactory <span class="title">obtainFreshBeanFactory</span><span class="params">()</span> </span>&#123;
+	refreshBeanFactory();
+	<span class="keyword">return</span> getBeanFactory();
+&#125;</code></pre>
+<p>该方法里就只有两个方法， 继续点进去看，先看refreshBeanFactory():</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">refreshBeanFactory</span><span class="params">()</span> <span class="keyword">throws</span> BeansException </span>&#123;
+	<span class="comment">// 判断是否已经有了BeanFactory，如果已经有了，则销毁所有的beans, 关闭已有的BeanFactory</span>
+	<span class="keyword">if</span> (hasBeanFactory()) &#123;
+		destroyBeans();
+		closeBeanFactory();
+	&#125;
+	<span class="keyword">try</span> &#123;
+		<span class="comment">// 初始化一个 DefaultListableBeanFactory，这个BeanFactory基本继承了所有的BeanFactory。</span>
+		DefaultListableBeanFactory beanFactory = createBeanFactory();
+		<span class="comment">// 设置BeanFactory的序列化。</span>
+		beanFactory.setSerializationId(getId());
+		<span class="comment">// 设置 BeanFactory 是否允许 Bean 覆盖、是否允许循环引用。</span>
+		customizeBeanFactory(beanFactory);
+		<span class="comment">// 加载BeanDefinition。</span>
+		loadBeanDefinitions(beanFactory);
+		<span class="keyword">synchronized</span> (<span class="keyword">this</span>.beanFactoryMonitor) &#123;
+			<span class="keyword">this</span>.beanFactory = beanFactory;
+		&#125;
+	&#125;
+	<span class="keyword">catch</span> (IOException ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> ApplicationContextException(<span class="string">&quot;I/O error parsing bean definition source for &quot;</span> + getDisplayName(), ex);
+	&#125;
+&#125;</code></pre>
+<p>为啥说这个BeanFactory是最牛的呢，请看图：<br><img src="https://img-blog.csdnimg.cn/20200720143859691.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JlYmVsSGVybw==,size_16,color_FFFFFF,t_70" alt="DefaultListableBeanFactory"><br>上个方法核心很明显是loadBeanDefinitions，加载BeanDefinition。下面看下这个。</p>
+<h3 id="loadBeanDefinitions-加载BeanDefinition"><a href="#loadBeanDefinitions-加载BeanDefinition" class="headerlink" title="loadBeanDefinitions 加载BeanDefinition"></a>loadBeanDefinitions 加载BeanDefinition</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">loadBeanDefinitions</span><span class="params">(DefaultListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException, IOException </span>&#123;
+		<span class="comment">// 为该BeanFactory创建一个新的XmlBeanDefinitionReader。</span>
+		XmlBeanDefinitionReader beanDefinitionReader = <span class="keyword">new</span> XmlBeanDefinitionReader(beanFactory);
+
+		<span class="comment">// 设置一些配置，因为不是核心，没仔细看。</span>
+		beanDefinitionReader.setEnvironment(<span class="keyword">this</span>.getEnvironment());
+		beanDefinitionReader.setResourceLoader(<span class="keyword">this</span>);
+		beanDefinitionReader.setEntityResolver(<span class="keyword">new</span> ResourceEntityResolver(<span class="keyword">this</span>));
+
+		<span class="comment">// 初始化 BeanDefinitionReader，也不重要。</span>
+		initBeanDefinitionReader(beanDefinitionReader);
+		<span class="comment">// 核心是这个，加载BeanDefinition！！</span>
+		loadBeanDefinitions(beanDefinitionReader);
+	&#125;</code></pre>
+<p>看loadBeanDefinitions方法：</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">loadBeanDefinitions</span><span class="params">(XmlBeanDefinitionReader reader)</span> <span class="keyword">throws</span> BeansException, IOException </span>&#123;
+	Resource[] configResources = getConfigResources();
+	<span class="keyword">if</span> (configResources != <span class="keyword">null</span>) &#123;
+		<span class="comment">//  看这儿 &lt;1&gt;。</span>
+		reader.loadBeanDefinitions(configResources);
+	&#125;
+	String[] configLocations = getConfigLocations();
+	<span class="keyword">if</span> (configLocations != <span class="keyword">null</span>) &#123;
+		<span class="comment">// 这个看着看着还是会回到上面的loadBeanDefinitions的。</span>
+		reader.loadBeanDefinitions(configLocations);
+	&#125;
+&#125;
+
+<span class="comment">// 对应的&lt;1&gt;的loadBeanDefinitions</span>
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">loadBeanDefinitions</span><span class="params">(Resource... resources)</span> <span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+	Assert.notNull(resources, <span class="string">&quot;Resource array must not be null&quot;</span>);
+	<span class="comment">// 表示加载了多少的BeanDefinition。</span>
+	<span class="keyword">int</span> count = <span class="number">0</span>;
+	<span class="keyword">for</span> (Resource resource : resources) &#123;
+		<span class="comment">// 加载BeanDefinition，有三种，看XmlBeanDefinitionReader的就行。</span>
+		count += loadBeanDefinitions(resource);
+	&#125;
+	<span class="keyword">return</span> count;
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">loadBeanDefinitions</span><span class="params">(Resource resource)</span> <span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+	<span class="keyword">return</span> loadBeanDefinitions(<span class="keyword">new</span> EncodedResource(resource));
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">loadBeanDefinitions</span><span class="params">(EncodedResource encodedResource)</span> <span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+	Assert.notNull(encodedResource, <span class="string">&quot;EncodedResource must not be null&quot;</span>);
+	<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+		logger.trace(<span class="string">&quot;Loading XML bean definitions from &quot;</span> + encodedResource);
+	&#125;
+	
+	Set&lt;EncodedResource&gt; currentResources = <span class="keyword">this</span>.resourcesCurrentlyBeingLoaded.get();
+	<span class="keyword">if</span> (currentResources == <span class="keyword">null</span>) &#123;
+		currentResources = <span class="keyword">new</span> HashSet&lt;&gt;(<span class="number">4</span>);
+		<span class="keyword">this</span>.resourcesCurrentlyBeingLoaded.set(currentResources);
+	&#125;
+	<span class="keyword">if</span> (!currentResources.add(encodedResource)) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(
+				<span class="string">&quot;Detected cyclic loading of &quot;</span> + encodedResource + <span class="string">&quot; - check your import definitions!&quot;</span>);
+	&#125;
+	<span class="keyword">try</span> &#123;
+		<span class="comment">// 读取这个文件流。</span>
+		InputStream inputStream = encodedResource.getResource().getInputStream();
+		<span class="keyword">try</span> &#123;
+			InputSource inputSource = <span class="keyword">new</span> InputSource(inputStream);
+			<span class="keyword">if</span> (encodedResource.getEncoding() != <span class="keyword">null</span>) &#123;
+				inputSource.setEncoding(encodedResource.getEncoding());
+			&#125;
+			<span class="comment">// 我发现Spring中所有的doXxx才是真正的加载，因此绕了半天绕到这里才是真正开始加载。</span>
+			<span class="keyword">return</span> doLoadBeanDefinitions(inputSource, encodedResource.getResource());
+		&#125;
+		<span class="keyword">finally</span> &#123;
+			inputStream.close();
+		&#125;
+	&#125;
+	<span class="keyword">catch</span> (IOException ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(
+				<span class="string">&quot;IOException parsing XML document from &quot;</span> + encodedResource.getResource(), ex);
+	&#125;
+	<span class="keyword">finally</span> &#123;
+		currentResources.remove(encodedResource);
+		<span class="keyword">if</span> (currentResources.isEmpty()) &#123;
+			<span class="keyword">this</span>.resourcesCurrentlyBeingLoaded.remove();
+		&#125;
+	&#125;
+&#125;
+
+
+<span class="comment">/**</span>
+<span class="comment">* 这个方法好多的catch，我给略过了。</span>
+<span class="comment">*/</span>
+<span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">doLoadBeanDefinitions</span><span class="params">(InputSource inputSource, Resource resource)</span></span>
+<span class="function">			<span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+	<span class="keyword">try</span> &#123;
+		<span class="comment">// 将xml文件转成一个Document对象。</span>
+		Document doc = doLoadDocument(inputSource, resource);
+		<span class="comment">// 注册BeanDefinition们。</span>
+		<span class="keyword">int</span> count = registerBeanDefinitions(doc, resource);
+		<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;
+			logger.debug(<span class="string">&quot;Loaded &quot;</span> + count + <span class="string">&quot; bean definitions from &quot;</span> + resource);
+		&#125;
+		<span class="keyword">return</span> count;
+	&#125;
+	<span class="comment">// 一堆catch。</span>
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">registerBeanDefinitions</span><span class="params">(Document doc, Resource resource)</span> <span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+	BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+	<span class="comment">// 在注册前的BeanDefinition数量。</span>
+	<span class="keyword">int</span> countBefore = getRegistry().getBeanDefinitionCount();
+	<span class="comment">// 注册。</span>
+	documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+	<span class="comment">// 现有注册数量 - 之前的注册数量 = 该次注册数量（在说废话...）。</span>
+	<span class="keyword">return</span> getRegistry().getBeanDefinitionCount() - countBefore;
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(Document doc, XmlReaderContext readerContext)</span> </span>&#123;
+	<span class="keyword">this</span>.readerContext = readerContext;
+	<span class="comment">// 我就说吧，doXxx才是干实事的！</span>
+	doRegisterBeanDefinitions(doc.getDocumentElement());
+&#125;</code></pre>
+<p>这些都是一连贯的，因此我们来看看干实事的doRegisterBeanDefinitions！</p>
+<h3 id="doRegisterBeanDefinitions-注册BeanDefinition"><a href="#doRegisterBeanDefinitions-注册BeanDefinition" class="headerlink" title="doRegisterBeanDefinitions 注册BeanDefinition"></a>doRegisterBeanDefinitions 注册BeanDefinition</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doRegisterBeanDefinitions</span><span class="params">(Element root)</span> </span>&#123;
+	<span class="comment">// 瞧瞧人家这名字，BeanDefinition转换代表，一看就与众不同。</span>
+	BeanDefinitionParserDelegate parent = <span class="keyword">this</span>.delegate;
+	<span class="keyword">this</span>.delegate = createDelegate(getReaderContext(), root, parent);
+	<span class="comment">// 判断是不是默认的NameSpace -&gt; http://www.springframework.org/schema/beans</span>
+	<span class="keyword">if</span> (<span class="keyword">this</span>.delegate.isDefaultNamespace(root)) &#123;
+		<span class="comment">// 判断其profile，dev、test还是prod，如果不是当前环境定义的就过过过。</span>
+		String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
+		<span class="keyword">if</span> (StringUtils.hasText(profileSpec)) &#123;
+			String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
+					profileSpec, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+			<span class="comment">// We cannot use Profiles.of(...) since profile expressions are not supported</span>
+			<span class="comment">// in XML config. See SPR-12458 for details.</span>
+			<span class="keyword">if</span> (!getReaderContext().getEnvironment().acceptsProfiles(specifiedProfiles)) &#123;
+				<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;
+					logger.debug(<span class="string">&quot;Skipped XML bean definition file due to specified profiles [&quot;</span> + profileSpec +
+							<span class="string">&quot;] not matching: &quot;</span> + getReaderContext().getResource());
+				&#125;
+				<span class="keyword">return</span>;
+			&#125;
+		&#125;
+	&#125;
+
+	preProcessXml(root);
+	<span class="comment">// 重点。</span>
+	parseBeanDefinitions(root, <span class="keyword">this</span>.delegate);
+	postProcessXml(root);
+
+	<span class="keyword">this</span>.delegate = parent;
+&#125;
+
+<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">parseBeanDefinitions</span><span class="params">(Element root, BeanDefinitionParserDelegate delegate)</span> </span>&#123;
+	<span class="keyword">if</span> (delegate.isDefaultNamespace(root)) &#123;
+		NodeList nl = root.getChildNodes();
+		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nl.getLength(); i++) &#123;
+			Node node = nl.item(i);
+			<span class="keyword">if</span> (node <span class="keyword">instanceof</span> Element) &#123;
+				Element ele = (Element) node;
+				<span class="keyword">if</span> (delegate.isDefaultNamespace(ele)) &#123;
+					<span class="comment">// 点进去可以看见。</span>
+					<span class="comment">// 解析默认的Elemtment, 就以下四种，import, alias, bean, beans。</span>
+					parseDefaultElement(ele, delegate);
+				&#125;
+				<span class="keyword">else</span> &#123;
+					<span class="comment">// 那除了上面四种，就是其他的咯。</span>
+					delegate.parseCustomElement(ele);
+				&#125;
+			&#125;
+		&#125;
+	&#125;
+	<span class="keyword">else</span> &#123;
+		delegate.parseCustomElement(root);
+	&#125;
+&#125;</code></pre>
+<p>其他不关注了，就看怎么解析bean。点进parseDefaultElement再进processBeanDefinition。看processBeanDefinition：</p>
+<h3 id="processBeanDefinition-解析为BeanDefinition"><a href="#processBeanDefinition-解析为BeanDefinition" class="headerlink" title="processBeanDefinition 解析为BeanDefinition"></a>processBeanDefinition 解析为BeanDefinition</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">processBeanDefinition</span><span class="params">(Element ele, BeanDefinitionParserDelegate delegate)</span> </span>&#123;
+	<span class="comment">// 具体就不进去描述了，感兴趣的可以自己去看.</span>
+	<span class="comment">// 反正总的来说就是解析了&lt;bean&gt;为一个BeanDefinitionHolder</span>
+	BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
+	<span class="keyword">if</span> (bdHolder != <span class="keyword">null</span>) &#123;
+		bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
+		<span class="keyword">try</span> &#123;
+			<span class="comment">// 注册咯。</span>
+			BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
+		&#125;
+		<span class="keyword">catch</span> (BeanDefinitionStoreException ex) &#123;
+			getReaderContext().error(<span class="string">&quot;Failed to register bean definition with name &#x27;&quot;</span> +
+					bdHolder.getBeanName() + <span class="string">&quot;&#x27;&quot;</span>, ele, ex);
+		&#125;
+		<span class="comment">// 发送注册事件。</span>
+		getReaderContext().fireComponentRegistered(<span class="keyword">new</span> BeanComponentDefinition(bdHolder));
+	&#125;
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">registerBeanDefinition</span><span class="params">(</span></span>
+<span class="function"><span class="params">			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span></span>
+<span class="function">			<span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+
+	<span class="comment">// 获取bean名称。</span>
+	String beanName = definitionHolder.getBeanName();
+	<span class="comment">// 然后注册进Bean，看下面我引的方法解读。</span>
+	registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+
+	<span class="comment">// 有别名的话，就注册别名。点进去一步步看能看出，是aliasMap, 其中key是alias，value是beanName。</span>
+	String[] aliases = definitionHolder.getAliases();
+	<span class="keyword">if</span> (aliases != <span class="keyword">null</span>) &#123;
+		<span class="keyword">for</span> (String alias : aliases) &#123;
+			registry.registerAlias(beanName, alias);
+		&#125;
+	&#125;
+&#125;
+
+<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinition</span><span class="params">(String beanName, BeanDefinition beanDefinition)</span></span>
+<span class="function">			<span class="keyword">throws</span> BeanDefinitionStoreException </span>&#123;
+
+	Assert.hasText(beanName, <span class="string">&quot;Bean name must not be empty&quot;</span>);
+	Assert.notNull(beanDefinition, <span class="string">&quot;BeanDefinition must not be null&quot;</span>);
+
+	<span class="keyword">if</span> (beanDefinition <span class="keyword">instanceof</span> AbstractBeanDefinition) &#123;
+		<span class="keyword">try</span> &#123;
+			((AbstractBeanDefinition) beanDefinition).validate();
+		&#125;
+		<span class="keyword">catch</span> (BeanDefinitionValidationException ex) &#123;
+			<span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+					<span class="string">&quot;Validation of bean definition failed&quot;</span>, ex);
+		&#125;
+	&#125;
+	<span class="comment">// 判断改BeanName是否已经存在。</span>
+	BeanDefinition existingDefinition = <span class="keyword">this</span>.beanDefinitionMap.get(beanName);
+	<span class="comment">// 如果存在。</span>
+	<span class="keyword">if</span> (existingDefinition != <span class="keyword">null</span>) &#123;
+		<span class="comment">// 且不允许覆盖，则，抛异常。</span>
+		<span class="keyword">if</span> (!isAllowBeanDefinitionOverriding()) &#123;
+			<span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
+		&#125;
+		<span class="comment">// 重写用户自定义的 Bean。</span>
+		<span class="keyword">else</span> <span class="keyword">if</span> (existingDefinition.getRole() &lt; beanDefinition.getRole()) &#123;
+			<span class="comment">// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE</span>
+			<span class="keyword">if</span> (logger.isInfoEnabled()) &#123;
+				logger.info(<span class="string">&quot;Overriding user-defined bean definition for bean &#x27;&quot;</span> + beanName +
+						<span class="string">&quot;&#x27; with a framework-generated bean definition: replacing [&quot;</span> +
+						existingDefinition + <span class="string">&quot;] with [&quot;</span> + beanDefinition + <span class="string">&quot;]&quot;</span>);
+			&#125;
+		&#125;
+		<span class="comment">// 如果不是同一bean，则覆盖。</span>
+		<span class="keyword">else</span> <span class="keyword">if</span> (!beanDefinition.equals(existingDefinition)) &#123;
+			<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;
+				logger.debug(<span class="string">&quot;Overriding bean definition for bean &#x27;&quot;</span> + beanName +
+						<span class="string">&quot;&#x27; with a different definition: replacing [&quot;</span> + existingDefinition +
+						<span class="string">&quot;] with [&quot;</span> + beanDefinition + <span class="string">&quot;]&quot;</span>);
+			&#125;
+		&#125;
+		<span class="comment">// 还是会覆盖。</span>
+		<span class="keyword">else</span> &#123;
+			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+				logger.trace(<span class="string">&quot;Overriding bean definition for bean &#x27;&quot;</span> + beanName +
+						<span class="string">&quot;&#x27; with an equivalent definition: replacing [&quot;</span> + existingDefinition +
+						<span class="string">&quot;] with [&quot;</span> + beanDefinition + <span class="string">&quot;]&quot;</span>);
+			&#125;
+		&#125;
+		<span class="comment">// 前面只是打日志，这才是实打实的覆盖。</span>
+		<span class="keyword">this</span>.beanDefinitionMap.put(beanName, beanDefinition);
+	&#125;
+	<span class="keyword">else</span> &#123;
+		<span class="comment">// 判断是否已有bean初始化了。</span>
+		<span class="keyword">if</span> (hasBeanCreationStarted()) &#123;
+			<span class="comment">// Cannot modify startup-time collection elements anymore (for stable iteration)</span>
+			<span class="keyword">synchronized</span> (<span class="keyword">this</span>.beanDefinitionMap) &#123;
+				<span class="comment">// 终于放进这个map！</span>
+				<span class="keyword">this</span>.beanDefinitionMap.put(beanName, beanDefinition);
+				List&lt;String&gt; updatedDefinitions = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">this</span>.beanDefinitionNames.size() + <span class="number">1</span>);
+				updatedDefinitions.addAll(<span class="keyword">this</span>.beanDefinitionNames);
+				updatedDefinitions.add(beanName);
+				<span class="keyword">this</span>.beanDefinitionNames = updatedDefinitions;
+				removeManualSingletonName(beanName);
+			&#125;
+		&#125;
+		<span class="keyword">else</span> &#123;
+			<span class="comment">// 没有就进这里，这里和上面差不多。</span>
+			<span class="keyword">this</span>.beanDefinitionMap.put(beanName, beanDefinition);
+			<span class="keyword">this</span>.beanDefinitionNames.add(beanName);
+			removeManualSingletonName(beanName);
+		&#125;
+		<span class="keyword">this</span>.frozenBeanDefinitionNames = <span class="keyword">null</span>;
+	&#125;
+
+	<span class="keyword">if</span> (existingDefinition != <span class="keyword">null</span> || containsSingleton(beanName)) &#123;
+		resetBeanDefinition(beanName);
+	&#125;
+&#125;</code></pre>
+<p>至此，已经初始化了 Bean 容器，<bean>也转换为了BeanDefinition，也注册了各个 BeanDefinition 到注册中心了，但是还未初始化。以上就是<strong>obtainFreshBeanFactory方法</strong>一条链走下来的逻辑，简单梳理一下：<br><img src="https://img-blog.csdnimg.cn/20200721151116231.png" alt="获取BeanDefinition实例"><br><strong>下面再看refresh 中的 finishBeanFactoryInitialization方法，其中里面会初始化所有的Bean！</strong></p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><h3 id="finishBeanFactoryInitialization"><a href="#finishBeanFactoryInitialization" class="headerlink" title="finishBeanFactoryInitialization"></a>finishBeanFactoryInitialization</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finishBeanFactoryInitialization</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> </span>&#123;
+	<span class="comment">// 初始化 conversionService 的 Bean。</span>
+	<span class="keyword">if</span> (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &amp;&amp;
+			beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) &#123;
+		beanFactory.setConversionService(
+				beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+	&#125;
+
+	<span class="comment">// 如果之前没有任何bean后处理器（例如PropertyPlaceholderConfigurer bean）之前进行过注册，</span>
+	<span class="comment">// 注册一个默认的嵌入式值解析器，主要用于注释属性值的解析。</span>
+	<span class="keyword">if</span> (!beanFactory.hasEmbeddedValueResolver()) &#123;
+		beanFactory.addEmbeddedValueResolver(strVal -&gt; getEnvironment().resolvePlaceholders(strVal));
+	&#125;
+
+	<span class="comment">// Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.</span>
+	String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, <span class="keyword">false</span>, <span class="keyword">false</span>);
+	<span class="keyword">for</span> (String weaverAwareName : weaverAwareNames) &#123;
+		getBean(weaverAwareName);
+	&#125;
+
+	<span class="comment">// Stop using the temporary ClassLoader for type matching.</span>
+	beanFactory.setTempClassLoader(<span class="keyword">null</span>);
+
+	<span class="comment">// Allow for caching all bean definition metadata, not expecting further changes.</span>
+	beanFactory.freezeConfiguration();
+
+	<span class="comment">// 开始初始化咯。</span>
+	beanFactory.preInstantiateSingletons();
+&#125;</code></pre>
+<p>下面看preInstantiateSingletons方法，进行初始化。</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preInstantiateSingletons</span><span class="params">()</span> <span class="keyword">throws</span> BeansException </span>&#123;
+	<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+		logger.trace(<span class="string">&quot;Pre-instantiating singletons in &quot;</span> + <span class="keyword">this</span>);
+	&#125;
+
+	<span class="comment">// beanDefinitionNames是已经解析好的bean name.</span>
+	List&lt;String&gt; beanNames = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">this</span>.beanDefinitionNames);
+
+	<span class="keyword">for</span> (String beanName : beanNames) &#123;
+		<span class="comment">// 合并父 Bean 中的配置，注意 &lt;bean id=&quot;&quot; class=&quot;&quot; parent=&quot;&quot; /&gt; 中的 parent，用的不多吧。</span>
+		RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+		<span class="comment">// 如果是非抽象的，单例的，非延迟初始化的</span>
+		<span class="keyword">if</span> (!bd.isAbstract() &amp;&amp; bd.isSingleton() &amp;&amp; !bd.isLazyInit()) &#123;
+			<span class="comment">// 判断是否是FactoryBean，FactoryBean 是一个特殊的Bean，能创建Bean。</span>
+			<span class="keyword">if</span> (isFactoryBean(beanName)) &#123;
+				<span class="comment">// 如果是，名字前加个 &amp;。</span>
+				Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+				<span class="keyword">if</span> (bean <span class="keyword">instanceof</span> FactoryBean) &#123;
+					<span class="keyword">final</span> FactoryBean&lt;?&gt; factory = (FactoryBean&lt;?&gt;) bean;
+					<span class="keyword">boolean</span> isEagerInit;
+					<span class="keyword">if</span> (System.getSecurityManager() != <span class="keyword">null</span> &amp;&amp; factory <span class="keyword">instanceof</span> SmartFactoryBean) &#123;
+						isEagerInit = AccessController.doPrivileged((PrivilegedAction&lt;Boolean&gt;)
+										((SmartFactoryBean&lt;?&gt;) factory)::isEagerInit,
+								getAccessControlContext());
+					&#125;
+					<span class="keyword">else</span> &#123;
+						isEagerInit = (factory <span class="keyword">instanceof</span> SmartFactoryBean &amp;&amp;
+								((SmartFactoryBean&lt;?&gt;) factory).isEagerInit());
+					&#125;
+					<span class="keyword">if</span> (isEagerInit) &#123;
+						getBean(beanName);
+					&#125;
+				&#125;
+			&#125;
+			<span class="keyword">else</span> &#123;	
+				<span class="comment">// 不是FactoryBean就是普通的呗，走这里。</span>
+				getBean(beanName);
+			&#125;
+		&#125;
+	&#125;
+
+	<span class="comment">// 此时所有的bean已经全部初始化好了，触发所有适用bean的初始化后回调。</span>
+	<span class="keyword">for</span> (String beanName : beanNames) &#123;
+		Object singletonInstance = getSingleton(beanName);
+		<span class="keyword">if</span> (singletonInstance <span class="keyword">instanceof</span> SmartInitializingSingleton) &#123;
+			<span class="keyword">final</span> SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+			<span class="keyword">if</span> (System.getSecurityManager() != <span class="keyword">null</span>) &#123;
+				AccessController.doPrivileged((PrivilegedAction&lt;Object&gt;) () -&gt; &#123;
+					smartSingleton.afterSingletonsInstantiated();
+					<span class="keyword">return</span> <span class="keyword">null</span>;
+				&#125;, getAccessControlContext());
+			&#125;
+			<span class="keyword">else</span> &#123;
+				smartSingleton.afterSingletonsInstantiated();
+			&#125;
+		&#125;
+	&#125;
+&#125;</code></pre>
+<p>重点就是getBean，走起！</p>
+<h3 id="doGetBean"><a href="#doGetBean" class="headerlink" title="doGetBean"></a>doGetBean</h3><pre><code class="highlight java"><span class="function"><span class="keyword">public</span> Object <span class="title">getBean</span><span class="params">(String name)</span> <span class="keyword">throws</span> BeansException </span>&#123;
+	<span class="comment">// 就说干实事的还是doXxx。</span>
+	<span class="keyword">return</span> doGetBean(name, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">false</span>);
+&#125;
+
+<span class="keyword">protected</span> &lt;T&gt; <span class="function">T <span class="title">doGetBean</span><span class="params">(<span class="keyword">final</span> String name, <span class="meta">@Nullable</span> <span class="keyword">final</span> Class&lt;T&gt; requiredType,</span></span>
+<span class="function"><span class="params">			<span class="meta">@Nullable</span> <span class="keyword">final</span> Object[] args, <span class="keyword">boolean</span> typeCheckOnly)</span> <span class="keyword">throws</span> BeansException </span>&#123;
+	<span class="comment">// 转换bean name, 因为可能是别名。以及可能是FactoryBean de BeanName, 由于是带 &amp; 的。</span>
+	<span class="keyword">final</span> String beanName = transformedBeanName(name);
+	Object bean;
+
+	<span class="comment">// 判断是否已经创建过了。</span>
+	Object sharedInstance = getSingleton(beanName);
+	<span class="keyword">if</span> (sharedInstance != <span class="keyword">null</span> &amp;&amp; args == <span class="keyword">null</span>) &#123;
+		<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+			<span class="keyword">if</span> (isSingletonCurrentlyInCreation(beanName)) &#123;
+				logger.trace(<span class="string">&quot;Returning eagerly cached instance of singleton bean &#x27;&quot;</span> + beanName +
+						<span class="string">&quot;&#x27; that is not fully initialized yet - a consequence of a circular reference&quot;</span>);
+			&#125;
+			<span class="keyword">else</span> &#123;
+				logger.trace(<span class="string">&quot;Returning cached instance of singleton bean &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27;&quot;</span>);
+			&#125;
+		&#125;
+		<span class="comment">// 如果是普通的Bean则直接返回，如果是FactoryBean则返回其创建的Bean。</span>
+		bean = getObjectForBeanInstance(sharedInstance, name, beanName, <span class="keyword">null</span>);
+	&#125;
+
+	<span class="keyword">else</span> &#123;
+		<span class="comment">// 如果该beanName是prototype 的Bean 正在创建，那么应该是循环依赖的原因。</span>
+		<span class="comment">// Spring无法处理prototype 的Bean的循环依赖的问题。</span>
+		<span class="keyword">if</span> (isPrototypeCurrentlyInCreation(beanName)) &#123;
+			<span class="keyword">throw</span> <span class="keyword">new</span> BeanCurrentlyInCreationException(beanName);
+		&#125;
+	
+		BeanFactory parentBeanFactory = getParentBeanFactory();
+		<span class="comment">// 检查这个BeanDefination是否存在在父容器中。</span>
+		<span class="keyword">if</span> (parentBeanFactory != <span class="keyword">null</span> &amp;&amp; !containsBeanDefinition(beanName)) &#123;
+			<span class="comment">// Not found -&gt; check parent.</span>
+			String nameToLookup = originalBeanName(name);
+			<span class="keyword">if</span> (parentBeanFactory <span class="keyword">instanceof</span> AbstractBeanFactory) &#123;
+				<span class="keyword">return</span> ((AbstractBeanFactory) parentBeanFactory).doGetBean(
+						nameToLookup, requiredType, args, typeCheckOnly);
+			&#125;
+			<span class="keyword">else</span> <span class="keyword">if</span> (args != <span class="keyword">null</span>) &#123;
+				<span class="comment">// Delegation to parent with explicit args.</span>
+				<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup, args);
+			&#125;
+			<span class="keyword">else</span> <span class="keyword">if</span> (requiredType != <span class="keyword">null</span>) &#123;
+				<span class="comment">// No args -&gt; delegate to standard getBean method.</span>
+				<span class="keyword">return</span> parentBeanFactory.getBean(nameToLookup, requiredType);
+			&#125;
+			<span class="keyword">else</span> &#123;
+				<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup);
+			&#125;
+		&#125;
+
+		<span class="keyword">if</span> (!typeCheckOnly) &#123;
+			markBeanAsCreated(beanName);
+		&#125;
+
+		<span class="keyword">try</span> &#123;
+			<span class="comment">// 合并父 BeanDefinition 与子 BeanDefinition。</span>
+			<span class="keyword">final</span> RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+			checkMergedBeanDefinition(mbd, beanName, args);
+
+			<span class="comment">// 获取depends-on，看方法里知道，如果有依赖，那么先get 依赖的实例。</span>
+			String[] dependsOn = mbd.getDependsOn();
+			<span class="keyword">if</span> (dependsOn != <span class="keyword">null</span>) &#123;
+				<span class="keyword">for</span> (String dep : dependsOn) &#123;
+					<span class="keyword">if</span> (isDependent(beanName, dep)) &#123;
+						<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,
+								<span class="string">&quot;Circular depends-on relationship between &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27; and &#x27;&quot;</span> + dep + <span class="string">&quot;&#x27;&quot;</span>);
+					&#125;
+					<span class="comment">// 注册依赖和要创建的bean的，</span>
+					registerDependentBean(dep, beanName);
+					<span class="keyword">try</span> &#123;
+						<span class="comment">// 说明如果有依赖，先获取依赖的Bean实例。</span>
+						getBean(dep);
+					&#125;
+					<span class="keyword">catch</span> (NoSuchBeanDefinitionException ex) &#123;
+						<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,
+								<span class="string">&quot;&#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27; depends on missing bean &#x27;&quot;</span> + dep + <span class="string">&quot;&#x27;&quot;</span>, ex);
+					&#125;
+				&#125;
+			&#125;
+
+			<span class="comment">// 判断是否单例。</span>
+			<span class="keyword">if</span> (mbd.isSingleton()) &#123;
+				sharedInstance = getSingleton(beanName, () -&gt; &#123;
+					<span class="keyword">try</span> &#123;
+						<span class="comment">// 创建bean。</span>
+						<span class="keyword">return</span> createBean(beanName, mbd, args);
+					&#125;
+					<span class="keyword">catch</span> (BeansException ex) &#123;
+						destroySingleton(beanName);
+						<span class="keyword">throw</span> ex;
+					&#125;
+				&#125;);
+				<span class="comment">// 和上面一样的。</span>
+				bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
+			&#125;
+			<span class="comment">// 如果是 原型的。</span>
+			<span class="keyword">else</span> <span class="keyword">if</span> (mbd.isPrototype()) &#123;
+				Object prototypeInstance = <span class="keyword">null</span>;
+				<span class="keyword">try</span> &#123;
+					beforePrototypeCreation(beanName);
+					prototypeInstance = createBean(beanName, mbd, args);
+				&#125;
+				<span class="keyword">finally</span> &#123;
+					afterPrototypeCreation(beanName);
+				&#125;
+				bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
+			&#125;
+			<span class="comment">// 既不是单例又不是原型的。</span>
+			<span class="keyword">else</span> &#123;
+				String scopeName = mbd.getScope();
+				<span class="keyword">final</span> Scope scope = <span class="keyword">this</span>.scopes.get(scopeName);
+				<span class="keyword">if</span> (scope == <span class="keyword">null</span>) &#123;
+					<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;No Scope registered for scope name &#x27;&quot;</span> + scopeName + <span class="string">&quot;&#x27;&quot;</span>);
+				&#125;
+				<span class="keyword">try</span> &#123;
+					Object scopedInstance = scope.get(beanName, () -&gt; &#123;
+						beforePrototypeCreation(beanName);
+						<span class="keyword">try</span> &#123;
+							<span class="keyword">return</span> createBean(beanName, mbd, args);
+						&#125;
+						<span class="keyword">finally</span> &#123;
+							afterPrototypeCreation(beanName);
+						&#125;
+					&#125;);
+					bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
+				&#125;
+				<span class="keyword">catch</span> (IllegalStateException ex) &#123;
+					<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(beanName,
+							<span class="string">&quot;Scope &#x27;&quot;</span> + scopeName + <span class="string">&quot;&#x27; is not active for the current thread; consider &quot;</span> +
+							<span class="string">&quot;defining a scoped proxy for this bean if you intend to refer to it from a singleton&quot;</span>,
+							ex);
+				&#125;
+			&#125;
+		&#125;
+		<span class="keyword">catch</span> (BeansException ex) &#123;
+			cleanupAfterBeanCreationFailure(beanName);
+			<span class="keyword">throw</span> ex;
+		&#125;
+	&#125;
+
+	<span class="comment">// 检查required类型是否与实际bean实例的类型匹配。</span>
+	<span class="keyword">if</span> (requiredType != <span class="keyword">null</span> &amp;&amp; !requiredType.isInstance(bean)) &#123;
+		<span class="keyword">try</span> &#123;
+			T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
+			<span class="keyword">if</span> (convertedBean == <span class="keyword">null</span>) &#123;
+				<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+			&#125;
+			<span class="keyword">return</span> convertedBean;
+		&#125;
+		<span class="keyword">catch</span> (TypeMismatchException ex) &#123;
+			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+				logger.trace(<span class="string">&quot;Failed to convert bean &#x27;&quot;</span> + name + <span class="string">&quot;&#x27; to required type &#x27;&quot;</span> +
+						ClassUtils.getQualifiedName(requiredType) + <span class="string">&quot;&#x27;&quot;</span>, ex);
+			&#125;
+			<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+		&#125;
+	&#125;
+	<span class="keyword">return</span> (T) bean;
+&#125;</code></pre>
+<p>反正看了这么多，核心就是createBean。那么看看createBean：</p>
+<h3 id="createBean"><a href="#createBean" class="headerlink" title="createBean"></a>createBean</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> Object <span class="title">createBean</span><span class="params">(String beanName, RootBeanDefinition mbd, <span class="meta">@Nullable</span> Object[] args)</span></span>
+<span class="function">			<span class="keyword">throws</span> BeanCreationException </span>&#123;
+
+	<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+		logger.trace(<span class="string">&quot;Creating instance of bean &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27;&quot;</span>);
+	&#125;
+	RootBeanDefinition mbdToUse = mbd;
+
+	<span class="comment">// 确保此时解析了bean类。</span>
+	Class&lt;?&gt; resolvedClass = resolveBeanClass(mbd, beanName);
+	<span class="keyword">if</span> (resolvedClass != <span class="keyword">null</span> &amp;&amp; !mbd.hasBeanClass() &amp;&amp; mbd.getBeanClassName() != <span class="keyword">null</span>) &#123;
+		mbdToUse = <span class="keyword">new</span> RootBeanDefinition(mbd);
+		mbdToUse.setBeanClass(resolvedClass);
+	&#125;
+
+	<span class="comment">// 处理override method，即 lookup-method 和 replace-method。</span>
+	<span class="keyword">try</span> &#123;
+		mbdToUse.prepareMethodOverrides();
+	&#125;
+	<span class="keyword">catch</span> (BeanDefinitionValidationException ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(mbdToUse.getResourceDescription(),
+				beanName, <span class="string">&quot;Validation of method overrides failed&quot;</span>, ex);
+	&#125;
+
+	<span class="keyword">try</span> &#123;
+		<span class="comment">// 如果有BeanPostProcessors，那么返回代理而不是目标bean实例的。</span>
+		Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+		<span class="keyword">if</span> (bean != <span class="keyword">null</span>) &#123;
+			<span class="keyword">return</span> bean;
+		&#125;
+	&#125;
+	<span class="keyword">catch</span> (Throwable ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbdToUse.getResourceDescription(), beanName,
+				<span class="string">&quot;BeanPostProcessor before instantiation of bean failed&quot;</span>, ex);
+	&#125;
+
+	<span class="keyword">try</span> &#123;
+		<span class="comment">// 核心，核心！！doXxx！！</span>
+		Object beanInstance = doCreateBean(beanName, mbdToUse, args);
+		<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+			logger.trace(<span class="string">&quot;Finished creating instance of bean &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27;&quot;</span>);
+		&#125;
+		<span class="keyword">return</span> beanInstance;
+	&#125;
+	<span class="keyword">catch</span> (BeanCreationException | ImplicitlyAppearedSingletonException ex) &#123;
+		<span class="keyword">throw</span> ex;
+	&#125;
+	<span class="keyword">catch</span> (Throwable ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(
+				mbdToUse.getResourceDescription(), beanName, <span class="string">&quot;Unexpected exception during bean creation&quot;</span>, ex);
+	&#125;
+&#125;</code></pre>
+<h3 id="doCreateBean"><a href="#doCreateBean" class="headerlink" title="doCreateBean"></a>doCreateBean</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> Object <span class="title">doCreateBean</span><span class="params">(<span class="keyword">final</span> String beanName, <span class="keyword">final</span> RootBeanDefinition mbd, <span class="keyword">final</span> <span class="meta">@Nullable</span> Object[] args)</span></span>
+<span class="function">			<span class="keyword">throws</span> BeanCreationException </span>&#123;
+
+		<span class="comment">// BeanWrapper 是一个接口，它实现类包裹 bean 实例。</span>
+		BeanWrapper instanceWrapper = <span class="keyword">null</span>;
+		<span class="comment">// 如果是单例。</span>
+		<span class="keyword">if</span> (mbd.isSingleton()) &#123;
+			<span class="comment">// 看到这个变量的名字没，factoryBeanInstanceCache，说明是从factoryBean缓存中删除。</span>
+			instanceWrapper = <span class="keyword">this</span>.factoryBeanInstanceCache.remove(beanName);
+		&#125;
+		<span class="comment">// 如果为空，说明上面没有factoryBean，说明不是。</span>
+		<span class="keyword">if</span> (instanceWrapper == <span class="keyword">null</span>) &#123;
+			<span class="comment">// 在这create Bean。</span>
+			instanceWrapper = createBeanInstance(beanName, mbd, args);
+		&#125;
+		<span class="comment">// 获取实例化好的bean，暂时没填充属性。</span>
+		<span class="keyword">final</span> Object bean = instanceWrapper.getWrappedInstance();
+		<span class="comment">// 类型。</span>
+		Class&lt;?&gt; beanType = instanceWrapper.getWrappedClass();
+		<span class="keyword">if</span> (beanType != NullBean.class) &#123;
+			mbd.resolvedTargetType = beanType;
+		&#125;
+		<span class="comment">// Allow post-processors to modify the merged bean definition.</span>
+		<span class="keyword">synchronized</span> (mbd.postProcessingLock) &#123;
+			<span class="keyword">if</span> (!mbd.postProcessed) &#123;
+				<span class="keyword">try</span> &#123;
+					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+				&#125;
+				<span class="keyword">catch</span> (Throwable ex) &#123;
+					<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,
+							<span class="string">&quot;Post-processing of merged bean definition failed&quot;</span>, ex);
+				&#125;
+				mbd.postProcessed = <span class="keyword">true</span>;
+			&#125;
+		&#125;
+
+		<span class="comment">// 如果是单例的，允许循环依赖的，同时是否存于创建状态中。</span>
+		<span class="comment">// 看单词意思，早期单例曝光，这个变量用于解决循环依赖。</span>
+		<span class="keyword">boolean</span> earlySingletonExposure = (mbd.isSingleton() &amp;&amp; <span class="keyword">this</span>.allowCircularReferences &amp;&amp;
+				isSingletonCurrentlyInCreation(beanName));
+		<span class="keyword">if</span> (earlySingletonExposure) &#123;
+			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;
+				logger.trace(<span class="string">&quot;Eagerly caching bean &#x27;&quot;</span> + beanName +
+						<span class="string">&quot;&#x27; to allow for resolving potential circular references&quot;</span>);
+			&#125;
+			addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean));
+		&#125;
+
+		<span class="comment">// Initialize the bean instance.</span>
+		Object exposedObject = bean;
+		<span class="keyword">try</span> &#123;
+			<span class="comment">// 在这，填充前面实例化好的bean的属性。</span>
+			populateBean(beanName, mbd, instanceWrapper);
+        	 <span class="comment">// 处理 bean 初始化完成后的各种回调。</span>
+			exposedObject = initializeBean(beanName, exposedObject, mbd);
+		&#125;
+		<span class="keyword">catch</span> (Throwable ex) &#123;
+			<span class="keyword">if</span> (ex <span class="keyword">instanceof</span> BeanCreationException &amp;&amp; beanName.equals(((BeanCreationException) ex).getBeanName())) &#123;
+				<span class="keyword">throw</span> (BeanCreationException) ex;
+			&#125;
+			<span class="keyword">else</span> &#123;
+				<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(
+						mbd.getResourceDescription(), beanName, <span class="string">&quot;Initialization of bean failed&quot;</span>, ex);
+			&#125;
+		&#125;
+		<span class="keyword">if</span> (earlySingletonExposure) &#123;
+			Object earlySingletonReference = getSingleton(beanName, <span class="keyword">false</span>);
+			<span class="keyword">if</span> (earlySingletonReference != <span class="keyword">null</span>) &#123;
+				<span class="keyword">if</span> (exposedObject == bean) &#123;
+					exposedObject = earlySingletonReference;
+				&#125;
+				<span class="keyword">else</span> <span class="keyword">if</span> (!<span class="keyword">this</span>.allowRawInjectionDespiteWrapping &amp;&amp; hasDependentBean(beanName)) &#123;
+					String[] dependentBeans = getDependentBeans(beanName);
+					Set&lt;String&gt; actualDependentBeans = <span class="keyword">new</span> LinkedHashSet&lt;&gt;(dependentBeans.length);
+					<span class="keyword">for</span> (String dependentBean : dependentBeans) &#123;
+						<span class="keyword">if</span> (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) &#123;
+							actualDependentBeans.add(dependentBean);
+						&#125;
+					&#125;
+					<span class="keyword">if</span> (!actualDependentBeans.isEmpty()) &#123;
+						<span class="comment">// 抛异常的，我给注释了。</span>
+					&#125;
+				&#125;
+			&#125;
+		&#125;
+
+		<span class="comment">// Register bean as disposable.</span>
+		<span class="keyword">try</span> &#123;
+			registerDisposableBeanIfNecessary(beanName, bean, mbd);
+		&#125;
+		<span class="keyword">catch</span> (BeanDefinitionValidationException ex) &#123;
+			<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(
+					mbd.getResourceDescription(), beanName, <span class="string">&quot;Invalid destruction signature&quot;</span>, ex);
+		&#125;
+
+		<span class="keyword">return</span> exposedObject;
+	&#125;</code></pre>
+<p>重点嘛，很明显，就是createBeanInstance：</p>
+<h3 id="createBeanInstance"><a href="#createBeanInstance" class="headerlink" title="createBeanInstance"></a>createBeanInstance</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> BeanWrapper <span class="title">createBeanInstance</span><span class="params">(String beanName, RootBeanDefinition mbd, <span class="meta">@Nullable</span> Object[] args)</span> </span>&#123;
+	<span class="comment">// 保证此时已经解决bean class。</span>
+	Class&lt;?&gt; beanClass = resolveBeanClass(mbd, beanName);
+	<span class="comment">// 判断访问权限，如果不行，抛异常。</span>
+	<span class="keyword">if</span> (beanClass != <span class="keyword">null</span> &amp;&amp; !Modifier.isPublic(beanClass.getModifiers()) &amp;&amp; !mbd.isNonPublicAccessAllowed()) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,
+				<span class="string">&quot;Bean class isn&#x27;t public, and non-public access not allowed: &quot;</span> + beanClass.getName());
+	&#125;
+	<span class="comment">// 返回用于创建bean实例的回调（如果有）。</span>
+	Supplier&lt;?&gt; instanceSupplier = mbd.getInstanceSupplier();
+	<span class="keyword">if</span> (instanceSupplier != <span class="keyword">null</span>) &#123;
+		<span class="keyword">return</span> obtainFromSupplier(instanceSupplier, beanName);
+	&#125;
+
+	<span class="keyword">if</span> (mbd.getFactoryMethodName() != <span class="keyword">null</span>) &#123;
+		<span class="comment">// 使用工厂方法实例化Bean。</span>
+		<span class="keyword">return</span> instantiateUsingFactoryMethod(beanName, mbd, args);
+	&#125;
+
+	<span class="comment">// 如果这个是创建过的bean，那么用一种快捷的方式，单例是不会重复创建的，所以一般是原型模式。</span>
+	<span class="keyword">boolean</span> resolved = <span class="keyword">false</span>;
+	<span class="keyword">boolean</span> autowireNecessary = <span class="keyword">false</span>;
+	<span class="keyword">if</span> (args == <span class="keyword">null</span>) &#123;
+		<span class="keyword">synchronized</span> (mbd.constructorArgumentLock) &#123;
+			<span class="keyword">if</span> (mbd.resolvedConstructorOrFactoryMethod != <span class="keyword">null</span>) &#123;
+				resolved = <span class="keyword">true</span>;
+				autowireNecessary = mbd.constructorArgumentsResolved;
+			&#125;
+		&#125;
+	&#125;
+	<span class="keyword">if</span> (resolved) &#123;
+		<span class="keyword">if</span> (autowireNecessary) &#123;
+		 	<span class="comment">// 使用 构造方法自动注入 构造 bean 对象。 </span>
+			<span class="keyword">return</span> autowireConstructor(beanName, mbd, <span class="keyword">null</span>, <span class="keyword">null</span>);
+		&#125;
+		<span class="keyword">else</span> &#123;
+			<span class="comment">// 使用 默认构造方法 构造 bean 对象</span>
+			<span class="keyword">return</span> instantiateBean(beanName, mbd);
+		&#125;
+	&#125;
+
+	<span class="comment">// Candidate constructors for autowiring?</span>
+	Constructor&lt;?&gt;[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
+	<span class="keyword">if</span> (ctors != <span class="keyword">null</span> || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
+			mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) &#123;
+		<span class="keyword">return</span> autowireConstructor(beanName, mbd, ctors, args);
+	&#125;
+
+	<span class="comment">// Preferred constructors for default construction?</span>
+	ctors = mbd.getPreferredConstructors();
+	<span class="keyword">if</span> (ctors != <span class="keyword">null</span>) &#123;
+		<span class="keyword">return</span> autowireConstructor(beanName, mbd, ctors, <span class="keyword">null</span>);
+	&#125;
+
+	<span class="comment">// No special handling: simply use no-arg constructor.</span>
+	<span class="keyword">return</span> instantiateBean(beanName, mbd);
+&#125;</code></pre>
+<p>难的就不看了，看简单的默认构造方法创建的。instantiateBean走起！</p>
+<h3 id="instantiateBean"><a href="#instantiateBean" class="headerlink" title="instantiateBean"></a>instantiateBean</h3><pre><code class="highlight java"><span class="function"><span class="keyword">protected</span> BeanWrapper <span class="title">instantiateBean</span><span class="params">(<span class="keyword">final</span> String beanName, <span class="keyword">final</span> RootBeanDefinition mbd)</span> </span>&#123;
+	<span class="keyword">try</span> &#123;
+		Object beanInstance;
+		<span class="keyword">final</span> BeanFactory parent = <span class="keyword">this</span>;
+		<span class="keyword">if</span> (System.getSecurityManager() != <span class="keyword">null</span>) &#123;
+			beanInstance = AccessController.doPrivileged((PrivilegedAction&lt;Object&gt;) () -&gt;
+					getInstantiationStrategy().instantiate(mbd, beanName, parent),
+					getAccessControlContext());
+		&#125;
+		<span class="keyword">else</span> &#123;
+			<span class="comment">// 调用实例化策略创建实例，默认情况下使用反射创建对象。</span>
+			beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
+		&#125;
+		BeanWrapper bw = <span class="keyword">new</span> BeanWrapperImpl(beanInstance);
+		initBeanWrapper(bw);
+		<span class="keyword">return</span> bw;
+	&#125;
+	<span class="keyword">catch</span> (Throwable ex) &#123;
+		<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(
+				mbd.getResourceDescription(), beanName, <span class="string">&quot;Instantiation of bean failed&quot;</span>, ex);
+	&#125;
+&#125;
+
+<span class="function"><span class="keyword">public</span> Object <span class="title">instantiate</span><span class="params">(RootBeanDefinition bd, <span class="meta">@Nullable</span> String beanName, BeanFactory owner)</span> </span>&#123;
+	<span class="comment">// 如果没有override method就用反射，如果有，就用CGLIB。</span>
+	<span class="comment">// override method前面说了，是lookup-method 和 replaced-method </span>
+	<span class="keyword">if</span> (!bd.hasMethodOverrides()) &#123;
+		Constructor&lt;?&gt; constructorToUse;
+		<span class="keyword">synchronized</span> (bd.constructorArgumentLock) &#123;
+			constructorToUse = (Constructor&lt;?&gt;) bd.resolvedConstructorOrFactoryMethod;
+			<span class="keyword">if</span> (constructorToUse == <span class="keyword">null</span>) &#123;
+				<span class="keyword">final</span> Class&lt;?&gt; clazz = bd.getBeanClass();
+				<span class="keyword">if</span> (clazz.isInterface()) &#123;
+					<span class="keyword">throw</span> <span class="keyword">new</span> BeanInstantiationException(clazz, <span class="string">&quot;Specified class is an interface&quot;</span>);
+				&#125;
+				<span class="keyword">try</span> &#123;
+					<span class="keyword">if</span> (System.getSecurityManager() != <span class="keyword">null</span>) &#123;
+						constructorToUse = AccessController.doPrivileged(
+								(PrivilegedExceptionAction&lt;Constructor&lt;?&gt;&gt;) clazz::getDeclaredConstructor);
+					&#125;
+					<span class="keyword">else</span> &#123;
+						constructorToUse = clazz.getDeclaredConstructor();
+					&#125;
+					bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+				&#125;
+				<span class="keyword">catch</span> (Throwable ex) &#123;
+					<span class="keyword">throw</span> <span class="keyword">new</span> BeanInstantiationException(clazz, <span class="string">&quot;No default constructor found&quot;</span>, ex);
+				&#125;
+			&#125;
+		&#125;
+		<span class="comment">// 使用无参构造方法创建。</span>
+		<span class="keyword">return</span> BeanUtils.instantiateClass(constructorToUse);
+	&#125;
+	<span class="keyword">else</span> &#123;
+		<span class="comment">// 使用CGLIB 创建。</span>
+		<span class="keyword">return</span> instantiateWithMethodInjection(bd, beanName, owner);
+	&#125;
+&#125;</code></pre>
+<p>至此，Bean实例化总算完成了！！还有属性怎么填充的我就不说了，因为也写了这么多，其实实例化的Bean的我写的还是没那么详细的，有些我想留着下一篇写Spring如何解决循环依赖的时候再仔细写一下！</p>
+<p>总结啥的也不说了，反正都在文章里了。</p>
+<p><strong>最后，谢谢观看。本人才疏学浅，如有错误之处，欢迎指正，共同进步。</strong></p>
+
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">rebelHero7</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="http://example.com/2020/07/22/spring-ioc-rong-qi-yuan-ma-jian-dan-fen-xi/">http://example.com/2020/07/22/spring-ioc-rong-qi-yuan-ma-jian-dan-fen-xi/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">rebelHero7</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Spring/">
+                                    <span class="chip bg-color">Spring</span>
+                                </a>
+                            
+                                <a href="/tags/Spring%E6%BA%90%E7%A0%81/">
+                                    <span class="chip bg-color">Spring源码</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2020/07/23/spring-jie-jue-xun-huan-yi-lai-yuan-ma-jie-xi/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="Spring解决循环依赖源码解析">
+                        
+                        <span class="card-title">Spring解决循环依赖源码解析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            写在前面的话循环依赖是啥我就不说了，具体就讲怎么解决的，我觉得可以一句话概括，在Bean还没初始化前，使用早期引用！推荐先看一下我的上篇文章Spring IOC 容器源码简单分析了解如何获取bean的。
+开始首先进入getBean 进入do
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2020-07-23
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Spring/" class="post-category">
+                                    Spring
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Spring/">
+                        <span class="chip bg-color">Spring</span>
+                    </a>
+                    
+                    <a href="/tags/Spring%E6%BA%90%E7%A0%81/">
+                        <span class="chip bg-color">Spring源码</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/07/01/java-xian-cheng-chi-yuan-ma-fen-xi/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java线程池源码分析">
+                        
+                        <span class="card-title">Java线程池源码分析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            基本概念我这里先告知一些应该知道的基本概念：
+
+我们向线程池提交的都是一个个任务，这些任务都是实现了Runnable 接口的，Runnable的run方法是没有返回值的。而线程池是可以获取线程执行的结果的，返回的是Future。因此，线程池
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-07-01
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                    Java并发
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                        <span class="chip bg-color">Java并发</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+<!-- 代码块折行 -->
+
+<style type="text/css">
+code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }
+</style>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            <span id="year">2020</span>
+            <a href="/about" target="_blank">rebelHero7</a>
+<!--             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a> -->
+<!--             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a> -->
+<!--             <br> -->
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">28.1k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2020";
+                    var startMonth = "11";
+                    var startDate = "1";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/RebelHero7" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:yrebelhero@gmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=786289874" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 786289874" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/search.xml", 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    
+    
+    <script type="text/javascript" src="/libs/others/sakura.js"></script>
+    
+
+</body>
+
+</html>
