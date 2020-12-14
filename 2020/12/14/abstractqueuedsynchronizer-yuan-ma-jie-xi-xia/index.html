@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="偏向锁、轻量级锁，重量级锁膨胀过程, rebelHero7">
+    <meta name="keywords" content="AbstractQueuedSynchronizer源码解析（下）, rebelHero7">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>偏向锁、轻量级锁，重量级锁膨胀过程 | rebelHero7</title>
+    <title>AbstractQueuedSynchronizer源码解析（下） | rebelHero7</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -264,12 +264,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">偏向锁、轻量级锁，重量级锁膨胀过程</h1>
+                    <h1 class="description center-align post-title">AbstractQueuedSynchronizer源码解析（下）</h1>
                 </div>
             </div>
         </div>
@@ -386,10 +386,6 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E9%94%81/">
-                                <span class="chip bg-color">锁</span>
-                            </a>
-                        
                             <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
                                 <span class="chip bg-color">Java并发</span>
                             </a>
@@ -402,8 +398,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E9%94%81/" class="post-category">
-                                锁
+                            <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                Java并发
                             </a>
                         
                     </div>
@@ -415,7 +411,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2018-12-27
+                    2020-12-14
                 </div>
                 
 
@@ -424,14 +420,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.3k
+                    1.8k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    4 分
+                    7 分
                 </div>
                 
 
@@ -441,66 +437,282 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>在JDK 1.6之前，synchonized同步方式的成本非常高，因为使用了系统调用引起的内核态与用户态切换、线程阻塞造成的线程切换等。但是后面改进了，引进了锁的四个状态，分别是无锁，偏向锁，轻量级锁，重量级锁，而且是只能逐级膨胀的。</p>
-<p>但是我刚接触的时候一直很纠结膨胀过程，后来搞明白了，现在抽个时间总结记录一下。</p>
-<p>首先我们要知道，这几个级别适用的情况。</p>
-<ul>
-<li>偏向锁：适用于只有一个线程进入同步区</li>
-<li>轻量级锁：适用于多个线程交替进入同步区</li>
-<li>重量级锁：适用于多个线程同时竞争进入同步区</li>
-</ul>
-<p>这里我就不赘述有关它们三个的具体，直接讲解如何膨胀。</p>
+                <p>[TOC]</p>
+<h1 id="AQS源码解析（下）"><a href="#AQS源码解析（下）" class="headerlink" title="AQS源码解析（下）"></a>AQS源码解析（下）</h1><p>我们由一段生产者-消费者代码进入这篇文章</p>
+<pre><code class="highlight java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Buffer</span> </span>&#123;
+    <span class="keyword">private</span> List&lt;String&gt; queue;
+    <span class="keyword">private</span> <span class="keyword">int</span> size;
+
+    <span class="keyword">private</span> <span class="keyword">final</span> Lock lock = <span class="keyword">new</span> ReentrantLock();
+    <span class="comment">// 读线程条件</span>
+    <span class="keyword">private</span> <span class="keyword">final</span> Condition notEmpty = lock.newCondition();
+    <span class="comment">// 写线程条件</span>
+    <span class="keyword">private</span> <span class="keyword">final</span> Condition notFull = lock.newCondition();
+
+    <span class="function"><span class="keyword">public</span> <span class="title">Buffer</span><span class="params">()</span> </span>&#123;
+        <span class="keyword">this</span>(<span class="number">10</span>);
+    &#125;
+
+    <span class="function"><span class="keyword">public</span> <span class="title">Buffer</span><span class="params">(<span class="keyword">int</span> size)</span> </span>&#123;
+        <span class="keyword">this</span>.size = size;
+        queue = <span class="keyword">new</span> ArrayList&lt;&gt;();
+    &#125;
+
+    <span class="comment">// 生产</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;
+        lock.lock();
+        <span class="keyword">try</span> &#123;
+            <span class="keyword">while</span> (queue.size() == size) &#123;
+                notNull.await();
+            &#125;
+            queue.add(<span class="string">&quot;kkkkk&quot;</span>);
+            
+            notEmpty.signal();
+        &#125; <span class="keyword">finally</span> &#123;
+            lock.unlock();
+        &#125;
+    &#125;
+
+    <span class="comment">// 消费</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;
+        lock.lock();
+        <span class="keyword">try</span> &#123;
+            <span class="keyword">while</span> (queue.size() == <span class="number">0</span>) &#123;
+                notEmpty.await();
+            &#125;
+            queue.remove(queue.size() - <span class="number">1</span>);
+            notFull.signal();
+        &#125; <span class="keyword">finally</span> &#123;
+            lock.unlock();
+        &#125;
+
+    &#125;
+&#125;</code></pre>
+
+<p>一段经典的生产者-消费者代码，就不解读细节了。condition 是依赖ReentrantLock的，调用 await 进入等待还是 signal 唤醒，<strong>都必须获取到锁才能进行操作</strong>。其实可以看出来， 这个是和Object.wait()，Object.notify() 或 Object.notifyAll()一样的，只是说condition 是基于ReentrantLock的。</p>
+<p>下面看一下，Condition的变量，比较简单，就两个：</p>
+<pre><code class="highlight java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConditionObject</span> <span class="keyword">implements</span> <span class="title">Condition</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1173984872572414699L</span>;
+    <span class="comment">/** 条件队列第一个 */</span>
+    <span class="keyword">private</span> <span class="keyword">transient</span> Node firstWaiter;
+    <span class="comment">/** 条件队列的最后一个 */</span>
+    <span class="keyword">private</span> <span class="keyword">transient</span> Node lastWaiter;</code></pre>
+
+<p>在这里我得补充一个重点：</p>
 <ol>
-<li><p>当一个线程（假设叫A线程）想要获得锁时，首先检查对象头中的锁标志，如果是偏向锁，则跳转到2，如果是无锁状态，则跳转到3.</p>
+<li><p><strong>这里的条件队列，并不同于上篇所讲的等待队列！两者不可混淆，Node类中，有一个nextWaiter是给条件队列用的，而没有一个prevWaiter，说明条件队列是一个单向链表！</strong></p>
 </li>
-<li><p>检查对象头中的偏向线程id是否指向A线程，是，则直接执行同步代码块，不是则3.</p>
-</li>
-<li><p>使用cas操作将替换对象头中的偏向线程id，成功，则直接执行同步代码块。失败则说明其他的线程（假设叫B线程）已经拥有偏向锁了，那么进行偏向锁的撤销（因为这里有竞争了），此时执行4.</p>
-</li>
-<li><p>B线程运行到全局安全点后，暂停该线程，检查它的状态，如果处于不活动或者已经退出同步代码块则原持有偏向锁的线程释放锁，然后A再次执行3。如果仍处于活动状态，则需要升级为轻量级锁，此时执行5.</p>
-</li>
-<li><p>在B线程的栈中分配锁记录，拷贝对象头中的MarkWord到锁记录中，然后将MarkWord改为指向B线程，同时将对象头中的锁标志信息改为轻量级锁的00，然后唤醒B线程，也就是从安全点处继续执行。</p>
-</li>
-<li><p>由于锁升级为轻量级锁，A线程也进行相同的操作，即，在A线程的栈中分配锁记录，拷贝对象头中的Mark Word到锁记录中，然后使用cas操作替换MarkWord，因为此时B线程拥有锁，因此，A线程自旋。如果自旋一定次数内成功获得锁，那么A线程获得轻量级锁，执行同步代码块。若自旋后仍未获得锁，A升级为重量级锁，将对象头中的锁标志信息改为重量级的10，同时阻塞，此时请看7.</p>
-</li>
-<li><p>B线程在释放锁的时候，使用cas将MarkWord中的信息替换，成功，则表示无竞争（这个时候还是轻量级锁，A线程可能正在自旋中）直接释放。失败（因为这个时候锁已经膨胀），那么释放之后唤醒被挂起的线程（在这个例子中，也就是A）。</p>
-<p>以上就是我理解的锁膨胀过程。有错误的地方，欢迎指正。</p>
+<li><p><strong>当进入await方法，代表的是线程进入了条件队列中，而非等待队列，等signal时，不是说立刻就能拿到锁的！而是将条件队列中的节点放入到等待队列继续去排队！</strong></p>
 </li>
 </ol>
-<p>这里补充一些<strong>额外的知识</strong>：</p>
-<p><strong>自旋锁</strong>，也就是如果持有锁的线程能很短时间内释放锁，那么竞争锁的线程就不需要进入阻塞挂起状态，而是等一会（自旋），这样能避免用户线程和内核线程的切换消耗，但是如果超过一定时间仍未得到，还是会进入阻塞。</p>
-<p>通过自旋锁，可以减少线程阻塞造成的线程切换（包括挂起线程和恢复线程）。<br>1.6之后引入了<strong>自适应自旋锁</strong>，是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。</p>
-<p><strong>自适应自旋解决的是“锁竞争时间不确定”的问题</strong>。JVM很难感知到确切的锁竞争时间，而交给用户分析就违反了JVM的设计初衷。自适应自旋假定不同线程持有同一个锁对象的时间基本相当，竞争程度趋于稳定，因此，可以根据上一次自旋的时间与结果调整下一次自旋的时间。</p>
-<p> <strong>各个锁适用的场景：</strong></p>
-<p>这里我使用一下《java并发编程艺术》中的总结</p>
-<table>
-<thead>
-<tr>
-<th>锁</th>
-<th>优点</th>
-<th>缺点</th>
-<th>使用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>偏向锁</td>
-<td>加锁和解锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距</td>
-<td>如果线程间存在锁竞争，会带来额外的锁撤销的消耗</td>
-<td>适用于只有一个线程访问同步块场景</td>
-</tr>
-<tr>
-<td>轻量级锁</td>
-<td>竞争的线程不会阻塞，提高了程序的响应速度</td>
-<td>如果始终得不到锁竞争的线程使用自旋会消耗CPU</td>
-<td>追求响应时间,锁占用时间很短</td>
-</tr>
-<tr>
-<td>重量级锁</td>
-<td>线程竞争不使用自旋，不会消耗CPU</td>
-<td>线程阻塞，响应时间缓慢</td>
-<td>追求吞吐量,锁占用时间较长</td>
-</tr>
-</tbody></table>
+<h2 id="await方法"><a href="#await方法" class="headerlink" title="await方法"></a>await方法</h2><p>不多说，直接看await方法，</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">await</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;
+    <span class="comment">// 如果线程已中断。</span>
+    <span class="keyword">if</span> (Thread.interrupted())
+        <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();
+    <span class="comment">// 将当前线程包装成Node，并添加到条件队列中的尾部</span>
+    Node node = addConditionWaiter();
+    <span class="comment">// 释放拥有的锁，并返回之前的重入次数，也就是说，如果说重入了3次，那么返回3。</span>
+    <span class="keyword">int</span> savedState = fullyRelease(node);
+    <span class="keyword">int</span> interruptMode = <span class="number">0</span>;
+    <span class="comment">// 如果不在等待队列中，那么阻塞。</span>
+    <span class="keyword">while</span> (!isOnSyncQueue(node)) &#123;
+        LockSupport.park(<span class="keyword">this</span>);
+        <span class="comment">// 唤醒后进行的操作，不谈这个了。</span>
+        <span class="keyword">if</span> ((interruptMode = checkInterruptWhileWaiting(node)) != <span class="number">0</span>)
+            <span class="keyword">break</span>;
+    &#125;
+    <span class="comment">// 到这说明唤醒了，那么重新获取</span>
+    <span class="keyword">if</span> (acquireQueued(node, savedState) &amp;&amp; interruptMode != THROW_IE)
+        interruptMode = REINTERRUPT;
+    <span class="keyword">if</span> (node.nextWaiter != <span class="keyword">null</span>) <span class="comment">// clean up if cancelled</span>
+        unlinkCancelledWaiters();
+    <span class="keyword">if</span> (interruptMode != <span class="number">0</span>)
+        reportInterruptAfterWait(interruptMode);
+&#125;
+</code></pre>
+
+<p>一步一步来看，上面逻辑。</p>
+<p>首先看下，如何将线程添加到条件队列，addConditionWaiter方法。</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">private</span> Node <span class="title">addConditionWaiter</span><span class="params">()</span> </span>&#123;
+    <span class="comment">// 获取条件队列的尾部。</span>
+    Node t = lastWaiter;
+    <span class="comment">// 如果不为空 &amp;&amp; waitStatus不为CONDITION状态。</span>
+    <span class="keyword">if</span> (t != <span class="keyword">null</span> &amp;&amp; t.waitStatus != Node.CONDITION) &#123;
+        <span class="comment">// 清除状态不为CONDITION的节点。</span>
+        unlinkCancelledWaiters();
+        <span class="comment">// 重新获取。</span>
+        t = lastWaiter;
+    &#125;
+    <span class="comment">// 将当前线程包装成状态为CONDITION 的node。</span>
+    Node node = <span class="keyword">new</span> Node(Thread.currentThread(), Node.CONDITION);
+    <span class="comment">// 插入到条件队列中。</span>
+    <span class="keyword">if</span> (t == <span class="keyword">null</span>)
+        firstWaiter = node;
+    <span class="keyword">else</span>
+        t.nextWaiter = node;
+    lastWaiter = node;
+    <span class="keyword">return</span> node;
+&#125;
+
+<span class="comment">// 总体来说就是遍历清除状态不为CONDITION的节点， 是一个很简单的链表操作。</span>
+<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">unlinkCancelledWaiters</span><span class="params">()</span> </span>&#123;
+    <span class="comment">// 获取条件队列头部。</span>
+    Node t = firstWaiter;
+    <span class="comment">// 记录的是遍历时的上个节点，刚开始当然就是null了。</span>
+    Node trail = <span class="keyword">null</span>;
+    <span class="comment">// 遍历，将已经取消等待的节点清除。</span>
+    <span class="keyword">while</span> (t != <span class="keyword">null</span>) &#123;
+        Node next = t.nextWaiter;
+        <span class="comment">// 如果节点状态不为CONDITION，就被清除。</span>
+        <span class="keyword">if</span> (t.waitStatus != Node.CONDITION) &#123;
+            t.nextWaiter = <span class="keyword">null</span>;
+            <span class="keyword">if</span> (trail == <span class="keyword">null</span>)
+                firstWaiter = next;
+            <span class="keyword">else</span>
+                trail.nextWaiter = next;
+            <span class="keyword">if</span> (next == <span class="keyword">null</span>)
+                lastWaiter = trail;
+        &#125;
+        <span class="keyword">else</span>
+            trail = t;
+        t = next;
+    &#125;
+&#125;</code></pre>
+
+<p>逻辑很简单，就是将当前线程封装成Node， 并放至条件队列尾部。</p>
+<p>下面继续看一下fullyRelease方法。</p>
+<pre><code class="highlight java"><span class="function"><span class="keyword">final</span> <span class="keyword">int</span> <span class="title">fullyRelease</span><span class="params">(Node node)</span> </span>&#123;
+    <span class="keyword">boolean</span> failed = <span class="keyword">true</span>;
+    <span class="keyword">try</span> &#123;
+        <span class="comment">// 获取status，重入锁，可以 &gt;= 1</span>
+        <span class="keyword">int</span> savedState = getState();
+        <span class="comment">// 然后释放这些锁。</span>
+        <span class="keyword">if</span> (release(savedState)) &#123;
+            failed = <span class="keyword">false</span>;
+            <span class="keyword">return</span> savedState;
+        &#125; <span class="keyword">else</span> &#123;
+            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException();
+        &#125;
+    &#125; <span class="keyword">finally</span> &#123;
+        <span class="keyword">if</span> (failed)
+            node.waitStatus = Node.CANCELLED;
+    &#125;
+&#125;</code></pre>
+
+<p>这个也很简单，就不多说了。</p>
+<p>下面看下while循环的条件isOnSyncQueue方法：</p>
+<pre><code class="highlight java"><span class="comment">// 判断节点是否在等待队列中，注意，是等待队列，而不是条件队列！！</span>
+<span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">isOnSyncQueue</span><span class="params">(Node node)</span> </span>&#123;
+    <span class="comment">// 如果说，等待状态为CONDITION，</span>
+    <span class="comment">// 或者是，prev为null，因为prev是在等待队列中使用的，说明不在，返回false。</span>
+    <span class="keyword">if</span> (node.waitStatus == Node.CONDITION || node.prev == <span class="keyword">null</span>)
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    <span class="comment">// 如果有后继节点，说明肯定在等待队列中。</span>
+    <span class="keyword">if</span> (node.next != <span class="keyword">null</span>) 
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    <span class="comment">// 从尾部遍历找到该节点。</span>
+    <span class="comment">// 到这里说明节点的prev != null， 但是为什么还有遍历循环一次。</span>
+    <span class="comment">// 结合上一篇可以看到，当节点进入等待队列尾部时，会先设置node.prev = tail，再CAS设置节点为尾部，CAS可能会失败！</span>
+    <span class="keyword">return</span> findNodeFromTail(node);
+&#125;
+
+<span class="comment">// 就，遍历然后判断。</span>
+<span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">findNodeFromTail</span><span class="params">(Node node)</span> </span>&#123;
+    Node t = tail;
+    <span class="keyword">for</span> (;;) &#123;
+        <span class="keyword">if</span> (t == node)
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        <span class="keyword">if</span> (t == <span class="keyword">null</span>)
+            <span class="keyword">return</span> <span class="keyword">false</span>;
+        t = t.prev;
+    &#125;
+&#125;</code></pre>
+
+<p>我们现在从await方法抽出来，先来看看signal方法， 如何唤醒线程，再来看await继续的逻辑。</p>
+<h2 id="signal方法"><a href="#signal方法" class="headerlink" title="signal方法"></a>signal方法</h2><pre><code class="highlight java"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">signal</span><span class="params">()</span> </span>&#123;
+    <span class="comment">// 如果本身都不是拥有锁的线程，抛出异常！</span>
+    <span class="keyword">if</span> (!isHeldExclusively())
+        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException();
+    <span class="comment">// 获取条件队列的第一个</span>
+    Node first = firstWaiter;
+    <span class="keyword">if</span> (first != <span class="keyword">null</span>)
+        <span class="comment">// </span>
+        doSignal(first);
+&#125;
+
+<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doSignal</span><span class="params">(Node first)</span> </span>&#123;
+    <span class="keyword">do</span> &#123;
+        <span class="comment">// 获取头节点的后继节点，为空，说明就一个，于是把尾节点也置为null。</span>
+        <span class="keyword">if</span> ( (firstWaiter = first.nextWaiter) == <span class="keyword">null</span>)
+            lastWaiter = <span class="keyword">null</span>;
+        <span class="comment">// 由于要去等待队列了，因此断开连接。</span>
+        first.nextWaiter = <span class="keyword">null</span>;
+        &#125; <span class="keyword">while</span> (!transferForSignal(first) &amp;&amp;
+             (first = firstWaiter) != <span class="keyword">null</span>);
+&#125;</code></pre>
+
+<pre><code class="highlight java"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">transferForSignal</span><span class="params">(Node node)</span> </span>&#123;
+    <span class="comment">/*</span>
+<span class="comment">     * 由于要去等待队列了，因此把状态改为0。</span>
+<span class="comment">     */</span>
+    <span class="keyword">if</span> (!compareAndSetWaitStatus(node, Node.CONDITION, <span class="number">0</span>))
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+
+    <span class="comment">/*</span>
+<span class="comment">     * 进入等待队列，请注意，这里返回的是上个节点，而不是该节点！关于这一点我上篇文章已经说了！</span>
+<span class="comment">     */</span>
+    Node p = enq(node);
+    <span class="keyword">int</span> ws = p.waitStatus;
+	  <span class="comment">// 如果上个节点的waitStatus &gt;0 说明取消等待，说明可以唤醒</span>
+    <span class="comment">// 上篇也说过，插入之后要将上个节点的waitStatus 设SIGNAL。</span>
+    <span class="keyword">if</span> (ws &gt; <span class="number">0</span> || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
+        LockSupport.unpark(node.thread);
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+&#125;</code></pre>
+
+<p>singal比较简单，下面继续看看await方法唤醒后的操作，我把部分代码截出来。</p>
+<pre><code class="highlight java"><span class="comment">// 刚刚停在这里了。</span>
+<span class="keyword">while</span> (!isOnSyncQueue(node)) &#123;
+    LockSupport.park(<span class="keyword">this</span>);
+    <span class="keyword">if</span> ((interruptMode = checkInterruptWhileWaiting(node)) != <span class="number">0</span>)
+        <span class="keyword">break</span>;
+&#125;
+<span class="comment">// 到这里说明要么被唤醒，要么被中断。</span>
+<span class="comment">// 去获取锁，同时，该线程没被中断，如果是中断，状态会表现为THROW_IE</span>
+<span class="keyword">if</span> (acquireQueued(node, savedState) &amp;&amp; interruptMode != THROW_IE)
+    interruptMode = REINTERRUPT;
+<span class="keyword">if</span> (node.nextWaiter != <span class="keyword">null</span>) <span class="comment">// clean up if cancelled</span>
+    unlinkCancelledWaiters();
+<span class="keyword">if</span> (interruptMode != <span class="number">0</span>)
+    reportInterruptAfterWait(interruptMode);</code></pre>
+
+<p>下面看看acquireQueued</p>
+<pre><code class="highlight java"><span class="comment">// 第二个参数，就是阻塞之前，重入的次数！我解除阻塞了肯定也必须重入相应的数量才是~</span>
+<span class="comment">// 这个方法上一篇已经解释过了，就不再复述，感兴趣的可以去上一篇看一下。</span>
+<span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">int</span> arg)</span> </span>&#123;
+    <span class="keyword">boolean</span> failed = <span class="keyword">true</span>;
+    <span class="keyword">try</span> &#123;
+        <span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;
+        <span class="keyword">for</span> (;;) &#123;
+            <span class="keyword">final</span> Node p = node.predecessor();
+            <span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;
+                setHead(node);
+                p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span>
+                failed = <span class="keyword">false</span>;
+                <span class="keyword">return</span> interrupted;
+            &#125;
+            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
+                parkAndCheckInterrupt())
+                interrupted = <span class="keyword">true</span>;
+        &#125;
+    &#125; <span class="keyword">finally</span> &#123;
+        <span class="keyword">if</span> (failed)
+            cancelAcquire(node);
+    &#125;
+&#125;</code></pre>
+
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>其实这篇文章篇幅不大，确实也不是很难，反正慢慢看吧，总能看懂。</p>
 
             </div>
             <hr/>
@@ -526,7 +738,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://example.com/2018/12/27/pian-xiang-suo-qing-liang-ji-suo-chong-liang-ji-suo-peng-zhang-guo-cheng/">http://example.com/2018/12/27/pian-xiang-suo-qing-liang-ji-suo-chong-liang-ji-suo-peng-zhang-guo-cheng/</a>
+                    <a href="http://example.com/2020/12/14/abstractqueuedsynchronizer-yuan-ma-jie-xi-xia/">http://example.com/2020/12/14/abstractqueuedsynchronizer-yuan-ma-jie-xi-xia/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -563,10 +775,6 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            
-                                <a href="/tags/%E9%94%81/">
-                                    <span class="chip bg-color">锁</span>
-                                </a>
                             
                                 <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
                                     <span class="chip bg-color">Java并发</span>
@@ -611,86 +819,40 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2019/04/18/arraylist-yuan-ma-jie-xi/">
+                <a href="/2020/12/14/abstractqueuedsynchronizer-yuan-ma-jie-xi-xia/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="ArrayList源码解析">
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="AbstractQueuedSynchronizer源码解析（下）">
                         
-                        <span class="card-title">ArrayList源码解析</span>
+                        <span class="card-title">AbstractQueuedSynchronizer源码解析（下）</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            一直以来都是看别人的博客，所以从来都是输入，没有输出。所以决心自己搞一个博客输出一下学习的东西。
-既然决定要写，就先从集合类开始。集合类最常用到的肯定是list，map，和set等。因此决定先从list的ArrayList写起。ArrayL
-                        
-                    </div>
-                    <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2019-04-18
-                        </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/Java%E9%9B%86%E5%90%88/" class="post-category">
-                                    Java集合
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/Java%E9%9B%86%E5%90%88/">
-                        <span class="chip bg-color">Java集合</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="far fa-dot-circle"></i>
-            </div>
-            <div class="card">
-                <a href="/2018/12/27/pian-xiang-suo-qing-liang-ji-suo-chong-liang-ji-suo-peng-zhang-guo-cheng/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="偏向锁、轻量级锁，重量级锁膨胀过程">
-                        
-                        <span class="card-title">偏向锁、轻量级锁，重量级锁膨胀过程</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            在JDK 1.6之前，synchonized同步方式的成本非常高，因为使用了系统调用引起的内核态与用户态切换、线程阻塞造成的线程切换等。但是后面改进了，引进了锁的四个状态，分别是无锁，偏向锁，轻量级锁，重量级锁，而且是只能逐级膨胀的。
-但是
+                            [TOC]
+AQS源码解析（下）我们由一段生产者-消费者代码进入这篇文章
+public class Buffer &#123;
+    private List&lt;String&gt; queue;
+    private int si
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2018-12-27
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-12-14
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E9%94%81/" class="post-category">
-                                    锁
+                            <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                    Java并发
                                 </a>
                             
                             
@@ -701,9 +863,55 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E9%94%81/">
-                        <span class="chip bg-color">锁</span>
+                    <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
+                        <span class="chip bg-color">Java并发</span>
                     </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/12/14/abstractqueuedsynchronizer-yuan-ma-jie-xi-shang/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="AbstractQueuedSynchronizer源码解析（上）">
+                        
+                        <span class="card-title">AbstractQueuedSynchronizer源码解析（上）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            AbstractQueuedSynchronizer源码解析（上）AbstractQueuedSynchronizer(以下简称AQS)应该都知道，是很多并发类的基石，ReentrantLock，CountDownLatch等都是基于它。
+
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-12-14
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java%E5%B9%B6%E5%8F%91/" class="post-category">
+                                    Java并发
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
                     
                     <a href="/tags/Java%E5%B9%B6%E5%8F%91/">
                         <span class="chip bg-color">Java并发</span>
